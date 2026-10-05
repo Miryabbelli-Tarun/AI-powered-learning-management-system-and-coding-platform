@@ -1,0 +1,1511 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+{{ course.title }} | TRun Learning Platform
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses/course_detail.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<div class="course-detail-page">
+
+    <!-- =====================================================
+         COURSE HERO
+    ====================================================== -->
+
+    <section class="course-hero">
+
+        <div class="hero-decoration hero-decoration-one"></div>
+        <div class="hero-decoration hero-decoration-two"></div>
+
+        <div class="course-container">
+
+            <!-- LEFT -->
+            <div class="hero-information">
+
+                <div class="course-breadcrumb">
+
+                    <a href="#">
+                        Courses
+                    </a>
+
+                    <span>/</span>
+
+                    <a href="#">
+                        {{ course.category.name }}
+                    </a>
+
+                    <span>/</span>
+
+                    <span>
+                        {{ course.title }}
+                    </span>
+
+                </div>
+
+
+                <div class="hero-label-row">
+
+                    <span class="hero-level">
+                        {{ course.level }}
+                    </span>
+
+                    {% if course.course_type == "FREE" %}
+
+                        <span class="hero-type free">
+                            FREE COURSE
+                        </span>
+
+                    {% else %}
+
+                        <span class="hero-type paid">
+                            PREMIUM COURSE
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <h1 class="hero-title">
+                    {{ course.title }}
+                </h1>
+
+
+                {% if course.description %}
+
+                <p class="hero-description">
+                    {{ course.description }}
+                </p>
+
+                {% endif %}
+
+
+                <div class="hero-meta">
+
+                    {% if course.instructor %}
+
+                    <div class="hero-meta-item">
+
+                        <div class="meta-symbol">
+                            IN
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Instructor
+                            </span>
+
+                            <strong>
+
+                                {{ course.instructor.first_name }}
+
+                                {% if course.instructor.last_name %}
+                                    {{ course.instructor.last_name }}
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="hero-meta-item">
+
+                        <div class="meta-symbol">
+                            CA
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Category
+                            </span>
+
+                            <strong>
+                                {{ course.category.name }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-meta-item">
+
+                        <div class="meta-symbol">
+                            TM
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Learning time
+                            </span>
+
+                            <strong>
+                                {{ course.duration_minutes }} minutes
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT THUMBNAIL -->
+
+            <div class="hero-visual">
+
+                <div class="thumbnail-frame">
+
+                    <div class="thumbnail-top-line"></div>
+
+                    {% if course.thumbnail %}
+
+                    <img
+                        src="{{ course.thumbnail.url }}"
+                        alt="{{ course.title }}"
+                        class="course-thumbnail"
+                    >
+
+                    {% else %}
+
+                    <div class="thumbnail-placeholder">
+
+                        <span>
+                            TRun
+                        </span>
+
+                        <strong>
+                            {{ course.title }}
+                        </strong>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="thumbnail-category">
+                        {{ course.category.name }}
+                    </div>
+
+                </div>
+
+
+                <div class="floating-badge badge-one">
+
+                    <span class="badge-icon">
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Structured Learning
+                        </strong>
+
+                        <span>
+                            Learn step by step
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="floating-badge badge-two">
+
+                    <span class="badge-number">
+                        {{ course.modules.count }}
+                    </span>
+
+                    <span>
+                        Modules
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         COURSE INFORMATION STRIP
+    ====================================================== -->
+
+    <section class="course-info-strip">
+
+        <div class="course-container info-strip-inner">
+
+            <div class="info-highlight">
+
+                <span class="info-icon">
+                    ◈
+                </span>
+
+                <div>
+
+                    <span>
+                        Course level
+                    </span>
+
+                    <strong>
+                        {{ course.level }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-highlight">
+
+                <span class="info-icon">
+                    ◷
+                </span>
+
+                <div>
+
+                    <span>
+                        Total duration
+                    </span>
+
+                    <strong>
+                        {{ course.duration_minutes }} minutes
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-highlight">
+
+                <span class="info-icon">
+                    #
+                </span>
+
+                <div>
+
+                    <span>
+                        Modules
+                    </span>
+
+                    <strong>
+                        {{ course.modules.count }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-highlight">
+
+                <span class="info-icon">
+                    $
+                </span>
+
+                <div>
+
+                    <span>
+                        Course access
+                    </span>
+
+                    <strong>
+
+                        {% if course.course_type == "FREE" %}
+                            Free
+                        {% else %}
+                            Paid
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="course-main">
+
+        <div class="course-container main-layout">
+
+
+            <!-- =================================================
+                 MAIN LEFT CONTENT
+            ================================================== -->
+
+            <div class="course-content">
+
+
+                <!-- =============================================
+                     ABOUT
+                ============================================== -->
+
+                <section class="content-block">
+
+                    <div class="block-heading">
+
+                        <div class="heading-mark">
+                            01
+                        </div>
+
+                        <div>
+
+                            <span>
+                                COURSE OVERVIEW
+                            </span>
+
+                            <h2>
+                                What you'll explore
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if course.description %}
+
+                    <div class="about-card">
+
+                        <div class="about-line"></div>
+
+                        <p>
+                            {{ course.description }}
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+                </section>
+
+
+
+                <!-- =============================================
+                     COURSE ROADMAP
+                ============================================== -->
+
+                <section class="content-block">
+
+                    <div class="block-heading">
+
+                        <div class="heading-mark">
+                            02
+                        </div>
+
+                        <div>
+
+                            <span>
+                                LEARNING ROADMAP
+                            </span>
+
+                            <h2>
+                                Your journey through the course
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="learning-roadmap">
+
+                        {% for module in course.modules.all %}
+
+                        <div class="roadmap-module">
+
+                            <div class="roadmap-line">
+
+                                <div class="roadmap-dot">
+                                    {{ forloop.counter }}
+                                </div>
+
+                                {% if not forloop.last %}
+                                <div class="roadmap-connector"></div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="module-card">
+
+                                <div class="module-top">
+
+                                    <div>
+
+                                        <span class="module-label">
+                                            MODULE {{ forloop.counter }}
+                                        </span>
+
+                                        <h3>
+                                            {{ module.title }}
+                                        </h3>
+
+                                    </div>
+
+
+                                    <div class="module-count">
+
+                                        <strong>
+                                            {{ module.lessons.count }}
+                                        </strong>
+
+                                        <span>
+                                            lesson{{ module.lessons.count|pluralize }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if module.description %}
+
+                                <p class="module-description">
+                                    {{ module.description }}
+                                </p>
+
+                                {% endif %}
+
+
+                                <div class="module-lessons">
+
+                                    {% for lesson in module.lessons.all %}
+
+                                    <div class="lesson-row">
+
+                                        <div class="lesson-icon">
+
+                                            {% if lesson.lesson_type == "VIDEO" %}
+                                                ▶
+                                            {% else %}
+                                                ≡
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="lesson-data">
+
+                                            <strong>
+                                                {{ lesson.title }}
+                                            </strong>
+
+                                            {% if lesson.description %}
+
+                                            <span>
+                                                {{ lesson.description }}
+                                            </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="lesson-details">
+
+                                            {% if lesson.lesson_type == "VIDEO" %}
+
+                                            <span class="lesson-tag video">
+                                                VIDEO
+                                            </span>
+
+                                            {% else %}
+
+                                            <span class="lesson-tag text">
+                                                TEXT
+                                            </span>
+
+                                            {% endif %}
+
+
+                                            {% if lesson.duration_minutes %}
+
+                                            <span class="lesson-time">
+                                                {{ lesson.duration_minutes }} min
+                                            </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                    {% empty %}
+
+                                    <div class="no-lessons">
+                                        Lessons will be added soon.
+                                    </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% empty %}
+
+                        <div class="empty-roadmap">
+
+                            <div class="empty-roadmap-icon">
+                                +
+                            </div>
+
+                            <h3>
+                                Course roadmap is being prepared
+                            </h3>
+
+                            <p>
+                                Modules and lessons will appear here once
+                                they are added by the instructor.
+                            </p>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     STUDY MATERIALS
+                ============================================== -->
+
+                <section class="content-block">
+
+                    <div class="block-heading">
+
+                        <div class="heading-mark">
+                            03
+                        </div>
+
+                        <div>
+
+                            <span>
+                                LEARNING RESOURCES
+                            </span>
+
+                            <h2>
+                                Materials for your journey
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="materials-list">
+
+                        {% for module in course.modules.all %}
+
+                            {% for lesson in module.lessons.all %}
+
+                                {% for material in lesson.study_materials.all %}
+
+                                <div class="resource-card">
+
+                                    <div class="resource-type">
+
+                                        {% if material.material_type == "PDF" %}
+                                            PDF
+                                        {% elif material.material_type == "DOCUMENT" %}
+                                            DOC
+                                        {% elif material.material_type == "ZIP" %}
+                                            ZIP
+                                        {% else %}
+                                            FILE
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="resource-info">
+
+                                        <h3>
+                                            {{ material.title }}
+                                        </h3>
+
+                                        <span>
+                                            {{ material.material_type }}
+                                        </span>
+
+                                    </div>
+
+
+                                    {% if material.material %}
+
+                                    <a
+                                        {% if request.user.is_authenticated %} href="{{ material.material.url }}"{% else %} href="{% url 'login'  %}" {% endif %}
+                                        target="_blank"
+                                        class="resource-button"
+                                    >
+                                        {% if request.user.is_authenticated %}Open{% else %}Login{% endif %}
+                                    </a>
+
+                                    {% elif material.file_url %}
+
+                                    <a
+                                        href="{{ material.file_url }}"
+                                        target="_blank"
+                                        class="resource-button"
+                                    >
+                                        {% if request.user.is_authenticated %}Open{% else %}login {% endif %}
+                                    </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                                {% endfor %}
+
+                            {% endfor %}
+
+                        {% empty %}
+
+                        <div class="no-resources">
+
+                            <span>
+                                No materials available yet.
+                            </span>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     INSTRUCTOR
+                ============================================== -->
+
+                {% if course.instructor %}
+
+                <section class="content-block">
+
+                    <div class="block-heading">
+
+                        <div class="heading-mark">
+                            04
+                        </div>
+
+                        <div>
+
+                            <span>
+                                COURSE INSTRUCTOR
+                            </span>
+
+                            <h2>
+                                Learn from your instructor
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="instructor-section">
+
+                        <div class="instructor-picture">
+
+                            {% if course.instructor.profile_image %}
+
+                            <img
+                                src="{{ course.instructor.profile_image }}"
+                                alt="{{ course.instructor.first_name }}"
+                            >
+
+                            {% else %}
+
+                            <span>
+                                {{ course.instructor.first_name|first|upper }}
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="instructor-info">
+
+                            <span class="instructor-small-title">
+                                INSTRUCTOR
+                            </span>
+
+                            <h3>
+
+                                {{ course.instructor.first_name }}
+
+                                {% if course.instructor.last_name %}
+                                    {{ course.instructor.last_name }}
+                                {% endif %}
+
+                            </h3>
+
+
+                            <p>
+                                Course instructor on the TRun Learning
+                                Platform.
+                            </p>
+
+
+                            <div class="instructor-contact">
+
+                                <span>
+                                    {{ course.instructor.email }}
+                                </span>
+
+                                {% if course.instructor.phone %}
+
+                                <span>
+                                    {{ course.instructor.phone }}
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                {% endif %}
+
+
+
+                <!-- =============================================
+                     REVIEWS
+                ============================================== -->
+
+                <section class="content-block">
+
+                    <div class="block-heading">
+
+                        <div class="heading-mark">
+                            05
+                        </div>
+
+                        <div>
+
+                            <span>
+                                LEARNER FEEDBACK
+                            </span>
+
+                            <h2>
+                                Experiences from learners
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- --------user comment section------------- -->
+                     {% if request.user %}
+                    <div>
+                        <form action="{% url 'comment' course.slug %}" method="POST">
+                            {% csrf_token %}
+                            <input type="text" name="comment" id="" placeholder="Enter your comment" required>
+                            <input type="number" name="rating" id="" placeholder="Enter rating upto 5 stars" required min="0" max="5">
+                            <button type="submit">Comment</button>
+                        </form>
+
+                    </div>
+                    {% endif %}
+                    <!-- -------------------------------------------- -->
+
+                    <div class="reviews-grid">
+
+                        {% for review in course.CourseRating.all %}
+
+                        <article class="review-card">
+
+                            <div class="review-header">
+
+                                <div class="review-user">
+
+                                    <div class="review-avatar">
+                                        {{ review.user.first_name|first|upper }}
+                                    </div>
+
+                                    <div>
+
+                                        <h3>
+                                            {{ review.user.first_name }}
+
+                                            {% if review.user.last_name %}
+                                                {{ review.user.last_name }}
+                                            {% endif %}
+                                        </h3>
+
+                                        <span>
+                                            {{ review.created_at|date:"d M Y" }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="review-stars">
+
+                                    {% for star in "12345" %}
+
+                                        {% if forloop.counter <= review.rating %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+
+                            {% if review.comment %}
+
+                            <p class="review-text">
+                                {{ review.comment }}
+                            </p>
+
+                            {% endif %}
+
+                        </article>
+
+                        {% empty %}
+
+                        <div class="no-reviews">
+
+                            <div>
+                                ★
+                            </div>
+
+                            <h3>
+                                No learner reviews yet
+                            </h3>
+
+                            <p>
+                                Reviews will appear here after learners
+                                share their experience.
+                            </p>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 STICKY ENROLLMENT CARD
+            ================================================== -->
+
+            <aside class="enrollment-column">
+
+                <div class="enrollment-card">
+
+                    <div class="enrollment-card-top">
+
+                        <span>
+                            READY TO LEARN?
+                        </span>
+
+                        <div class="enrollment-status">
+                            {{ course.status }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="enrollment-thumbnail">
+
+                        {% if course.thumbnail %}
+
+                        <img
+                            src="{{ course.thumbnail.url }}"
+                            alt="{{ course.title }}"
+                        >
+
+                        {% else %}
+
+                        <div class="small-thumbnail-placeholder">
+                            TRun
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="enrollment-body">
+
+                        <h3>
+                            {{ course.title }}
+                        </h3>
+
+
+                        <div class="enrollment-price">
+
+                            {% if course.course_type == "FREE" %}
+
+                                <strong class="free-price">
+                                    Free
+                                </strong>
+
+                            {% else %}
+
+                                {% if course.discounted_price > 0 %}
+
+                                <strong>
+                                    ₹{{ course.discounted_price }}
+                                </strong>
+
+                                {% if course.price > course.discounted_price %}
+
+                                <del>
+                                    ₹{{ course.price }}
+                                </del>
+
+                                {% endif %}
+
+                                {% else %}
+
+                                <strong>
+                                    ₹{{ course.price }}
+                                </strong>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="enrollment-features">
+
+                            <div>
+
+                                <span>
+                                    ✓
+                                </span>
+
+                                <p>
+                                    {{ course.level }} level
+                                </p>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    ✓
+                                </span>
+
+                                <p>
+                                    {{ course.duration_minutes }} minutes
+                                </p>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    ✓
+                                </span>
+
+                                <p>
+                                    {{ course.modules.count }} modules
+                                </p>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    ✓
+                                </span>
+
+                                <p>
+                                    {{ course.course_type }} course
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        {% if user.is_authenticated %}
+
+                        {% if course.course_type == "FREE" %}
+
+                            <button
+                                type="button"
+                                class="enroll-button"
+                                onclick="enrollFreeCourse({{course.course_id}})"
+                            >
+                                Enroll for Free
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="button"
+                                class="enroll-button"
+                                onclick="startPaidEnrollment({{ course.course_id }})"
+                            >
+                                Enroll Now
+                            </button>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <a
+                            href="/accounts/login/?next={{ request.path }}"
+                            class="enroll-button"
+                        >
+                            Login to Enroll
+                        </a>
+
+                    {% endif %}
+
+
+                        <a
+                            href="#"
+                            class="wishlist-link"
+                        >
+                            ♡
+                            Add to Wishlist
+                        </a>
+
+
+                        <div class="enrollment-note">
+                            Secure access through TRun Learning Platform
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FINAL CTA
+    ====================================================== -->
+
+    <section class="final-learning-section">
+
+        <div class="final-learning-pattern"></div>
+
+        <div class="final-learning-content">
+
+            <span>
+                TRUN LEARNING PLATFORM
+            </span>
+
+            <h2>
+                Turn this course into your next skill.
+            </h2>
+
+            <p>
+                Follow the roadmap, complete the lessons and build your
+                knowledge one step at a time.
+            </p>
+
+            <a href="#">
+                {% if course.course_type == "FREE" %}
+                    Start Learning
+                {% else %}
+                    Enroll in Course
+                {% endif %}
+
+                <span>
+                    →
+                </span>
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+
+            const cookie = cookies[i].trim();
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) === (name + "=")
+            ) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+
+const csrftoken = getCookie("csrftoken");
+
+
+async function enrollFreeCourse(courseId) {
+
+    const button = event.target;
+
+    button.disabled = true;
+
+    button.innerText = "Enrolling...";
+
+    try {
+
+        const response = await fetch(
+            `/payments/enroll-free/${courseId}/`,
+            {
+                method: "POST",
+
+                headers: {
+                    "X-CSRFToken": csrftoken,
+
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                credentials: "same-origin"
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+
+            alert(data.message);
+
+            window.location.reload();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Unable to enroll."
+            );
+
+            button.disabled = false;
+
+            button.innerText = "Enroll for Free";
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Something went wrong. Please try again."
+        );
+
+        button.disabled = false;
+
+        button.innerText = "Enroll for Free";
+    }
+}
+
+
+async function startPaidEnrollment(courseId) {
+
+    try {
+
+        const response = await fetch(
+            `/payments/create-order/${courseId}/`,
+            {
+                method: "POST",
+
+                headers: {
+                    "X-CSRFToken": csrftoken,
+
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                credentials: "same-origin"
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            alert(
+                data.message ||
+                "Unable to create payment order."
+            );
+
+            return;
+        }
+
+        if (data.already_enrolled) {
+
+            alert(
+                "You are already enrolled in this course."
+            );
+
+            return;
+        }
+
+        openRazorpayCheckout(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to start payment. Please try again."
+        );
+    }
+}
+
+
+function openRazorpayCheckout(orderData) {
+
+    const options = {
+
+        key: orderData.key_id,
+
+        amount: orderData.amount,
+
+        currency: orderData.currency,
+
+        name: "TRun Learning Platform",
+
+        description: orderData.course_title,
+
+        order_id: orderData.razorpay_order_id,
+
+        prefill: {
+
+            name: orderData.student_name,
+
+            email: orderData.student_email,
+
+            contact: orderData.student_phone
+        },
+
+        theme: {
+
+            color: "#5624d0"
+        },
+
+        handler: async function(response) {
+
+            await verifyPayment(
+                response,
+                orderData.order_id
+            );
+        },
+
+        modal: {
+
+            ondismiss: function() {
+
+                console.log(
+                    "Razorpay checkout closed."
+                );
+            }
+        }
+    };
+
+
+    const razorpay = new Razorpay(
+        options
+    );
+
+
+    razorpay.on(
+        "payment.failed",
+        function(response) {
+
+            console.error(
+                "Payment failed:",
+                response.error
+            );
+
+            alert(
+                "Payment failed. Please try again."
+            );
+        }
+    );
+
+
+    razorpay.open();
+}
+
+
+async function verifyPayment(
+    razorpayResponse,
+    localOrderId
+) {
+
+    try {
+
+        const formData = new URLSearchParams();
+
+        formData.append(
+            "razorpay_payment_id",
+            razorpayResponse.razorpay_payment_id
+        );
+
+        formData.append(
+            "razorpay_order_id",
+            razorpayResponse.razorpay_order_id
+        );
+
+        formData.append(
+            "razorpay_signature",
+            razorpayResponse.razorpay_signature
+        );
+
+        formData.append(
+            "local_order_id",
+            localOrderId
+        );
+
+
+        const response = await fetch(
+            "/payments/verify-payment/",
+            {
+                method: "POST",
+
+                headers: {
+
+                    "X-CSRFToken":
+                        csrftoken,
+
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                body: formData,
+
+                credentials: "same-origin"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (data.success) {
+
+            alert(
+                data.message
+            );
+
+            /*
+             * For now we reload the current course page.
+             *
+             * Later you can redirect this to
+             * your My Learning page.
+             */
+
+            window.location.reload();
+
+        } else {
+
+            alert(
+                data.message ||
+                "Payment verification failed."
+            );
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to verify payment."
+        );
+    }
+}
+
+</script>
+
+
+{% endblock %}

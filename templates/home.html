@@ -1,0 +1,1656 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}TRun Learning Platform{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ========================================================= -->
+<!-- HERO / MOVING BANNER -->
+<!-- ========================================================= -->
+<section class="hero-section">
+
+    <!-- ===================================================== -->
+    <!-- HERO SLIDER -->
+    <!-- ===================================================== -->
+
+    <div class="hero-slider" id="heroSlider">
+
+        {% for banner in banners %}
+
+        <div class="hero-slide {% if forloop.first %}active{% endif %}">
+
+            <!-- ================================================= -->
+            <!-- HERO CONTENT -->
+            <!-- ================================================= -->
+
+            <div class="hero-content">
+
+                {% if banner.title_cation %}
+
+                <span class="hero-small-title">
+
+                    {{ banner.title_cation }}
+
+                </span>
+
+                {% endif %}
+
+
+                <h1>
+
+                    {{ banner.title }}
+
+                </h1>
+
+
+                {% if banner.sub_title %}
+
+                <p>
+
+                    {{ banner.sub_title }}
+
+                </p>
+
+                {% endif %}
+
+
+                {% if banner.button_text %}
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="{% if banner.button_url %}{{ banner.button_url }}{% else %}#courses{% endif %}"
+                        class="hero-primary-btn"
+                    >
+
+                        {{ banner.button_text }}
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- HERO IMAGE -->
+            <!-- ================================================= -->
+
+            <div class="hero-image-container">
+
+                {% if banner.image %}
+
+                <img
+                    src="{{ banner.image.url }}"
+                    alt="{{ banner.title }}"
+                >
+
+                {% else %}
+
+                <img
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+                    alt="Students learning"
+                >
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <!-- ================================================= -->
+        <!-- FALLBACK WHEN NO BANNER EXISTS -->
+        <!-- ================================================= -->
+
+        <div class="hero-slide active">
+
+            <div class="hero-content">
+
+                <span class="hero-small-title">
+
+                    LEARN. BUILD. GROW.
+
+                </span>
+
+
+                <h1>
+
+                    Learn skills that
+                    <span>build your future.</span>
+
+                </h1>
+
+
+                <p>
+
+                    Explore courses, practice coding,
+                    and build real-world skills with TRun.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="#courses"
+                        class="hero-primary-btn"
+                    >
+
+                        Explore Courses
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-image-container">
+
+                <img
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+                    alt="Students learning"
+                >
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- HERO PREVIOUS BUTTON -->
+    <!-- ===================================================== -->
+
+    <button
+        class="hero-arrow hero-prev"
+        onclick="changeHero(-1)"
+    >
+
+        <i class="fa-solid fa-chevron-left"></i>
+
+    </button>
+
+
+    <!-- ===================================================== -->
+    <!-- HERO NEXT BUTTON -->
+    <!-- ===================================================== -->
+
+    <button
+        class="hero-arrow hero-next"
+        onclick="changeHero(1)"
+    >
+
+        <i class="fa-solid fa-chevron-right"></i>
+
+    </button>
+
+
+    <!-- ===================================================== -->
+    <!-- HERO DOTS -->
+    <!-- ===================================================== -->
+
+    <div class="hero-dots">
+
+        {% for banner in banners %}
+
+        <span
+            class="hero-dot {% if forloop.first %}active{% endif %}"
+        >
+        </span>
+        <!-- onclick="showHero({{forloop.counter0}})" -->
+
+        {% empty %}
+
+        <span
+            class="hero-dot active"
+            onclick="showHero(0)"
+        >
+        </span>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- POPULAR CATEGORIES -->
+<!-- ========================================================= -->
+
+<section class="section-container"
+         id="categories">
+
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                EXPLORE
+            </span>
+
+            <h2>
+                Explore top categories
+            </h2>
+
+            <p>
+                Discover courses designed to help
+                you learn the skills that matter.
+            </p>
+
+        </div>
+
+
+        <a href="#courses"
+           class="view-all-link">
+
+            Explore all
+
+            <i class="fa-solid fa-arrow-right"></i>
+
+        </a>
+
+    </div>
+
+
+
+    <div class="category-cards">
+
+        {% for category in top_categories %}
+        <a href="{% url 'all_courses' %}?category={{category.name}}"
+           class="category-card">
+
+            <div class="category-icon blue">
+
+                <i class="fa-solid fa-book-open"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    {{category.name}}
+                </h3>
+
+                <p>
+                    {{category.description}}
+                </p>
+
+            </div>
+
+        </a>
+        {% endfor %}
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- COURSE SECTION -->
+<!-- ========================================================= -->
+
+<section class="course-section"
+         id="courses">
+
+
+    <div class="section-container">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    LEARN FROM EXPERTS
+                </span>
+
+                <h2>
+                    Popular courses
+                </h2>
+
+                <p>
+                    Learn practical skills through
+                    carefully designed courses.
+                </p>
+
+            </div>
+
+
+            <a href="{% url 'all_courses' %}"
+               class="view-all-link">
+
+                Explore more
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+
+
+        <!-- COURSE SLIDER -->
+
+        <div class="course-slider-wrapper">
+
+
+            <button class="course-arrow left"
+                    onclick="moveCourses('popular', -1)">
+
+                <i class="fa-solid fa-chevron-left"></i>
+
+            </button>
+
+
+            <div class="course-slider"
+                 id="popularCourses">
+
+
+                <!-- COURSE 1 -->
+                {% for course in courses %}
+                <a href="{% url 'course_details' course.slug %}">
+                <article class="course-card">
+                    
+                    <div class="course-image">
+                        {% if not course.thumbnail %}
+                        <img
+                            src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=600&q=80"
+                            alt="Python course"
+                        >
+                        {% else %}
+                            <img
+                            src="{{course.thumbnail.url }}"
+                            alt="{{course.title}}"
+                        >
+                        {% endif %}
+
+                        <span class="course-badge">
+                            {% if course.course_type == 'FREE' %}Free{% else %}Paid {% endif %}
+                        </span>
+                        <a href="{% url 'toggle_wishlist' course.course_id %}">
+                            <button class="wishlist-btn">
+                                {% if course.course_id in wishlist_ids %}
+                                    <i class="fa-solid fa-heart" style="color: red;"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-heart"></i>
+                                {% endif %}
+
+                            </button>
+                        </a>
+                    </div>
+                    
+
+                    <div class="course-body">
+
+                        <h3>
+                            {{course.title}}
+                        </h3>
+
+                        <p class="instructor">
+                            TRun Expert Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.8
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (12,450)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                {{course.discounted_price}}
+                            </strong>
+
+                            <del>
+                                {{course.price}}
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+                </a>
+                {% endfor %}
+
+                <!-- COURSE 2 -->
+
+                <article class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=600&q=80"
+                            alt="Web development"
+                        >
+
+                        <span class="course-badge hot">
+                            Hot & New
+                        </span>
+
+                        <button class="wishlist-btn">
+
+                            <i class="fa-regular fa-heart"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="course-body">
+
+                        <h3>
+                            Full Stack Web Development
+                            with Django
+                        </h3>
+
+                        <p class="instructor">
+                            TRun Coding Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.7
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (8,921)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                ₹699
+                            </strong>
+
+                            <del>
+                                ₹2,499
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- COURSE 3 -->
+
+                <article class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80"
+                            alt="Data science"
+                        >
+
+                        <span class="course-badge">
+                            Bestseller
+                        </span>
+
+                        <button class="wishlist-btn">
+
+                            <i class="fa-regular fa-heart"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="course-body">
+
+                        <h3>
+                            Data Science and
+                            Machine Learning
+                        </h3>
+
+                        <p class="instructor">
+                            TRun Data Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.9
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (18,235)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                ₹799
+                            </strong>
+
+                            <del>
+                                ₹2,999
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- COURSE 4 -->
+
+                <article class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=600&q=80"
+                            alt="Artificial Intelligence"
+                        >
+
+                        <span class="course-badge hot">
+                            Hot & New
+                        </span>
+
+                        <button class="wishlist-btn">
+
+                            <i class="fa-regular fa-heart"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="course-body">
+
+                        <h3>
+                            Artificial Intelligence
+                            Masterclass
+                        </h3>
+
+                        <p class="instructor">
+                            TRun AI Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.8
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (6,830)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                ₹899
+                            </strong>
+
+                            <del>
+                                ₹3,199
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- COURSE 5 -->
+
+                <article class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=600&q=80"
+                            alt="React course"
+                        >
+
+                        <span class="course-badge">
+                            Bestseller
+                        </span>
+
+                        <button class="wishlist-btn">
+
+                            <i class="fa-regular fa-heart"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="course-body">
+
+                        <h3>
+                            React.js Complete
+                            Developer Course
+                        </h3>
+
+                        <p class="instructor">
+                            TRun Web Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.7
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (9,642)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                ₹649
+                            </strong>
+
+                            <del>
+                                ₹2,199
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- COURSE 6 -->
+
+                <article class="course-card">
+
+                    <div class="course-image">
+
+                        <img
+                            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80"
+                            alt="Cloud computing"
+                        >
+
+                        <span class="course-badge hot">
+                            Popular
+                        </span>
+
+                        <button class="wishlist-btn">
+
+                            <i class="fa-regular fa-heart"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="course-body">
+
+                        <h3>
+                            AWS Cloud Computing
+                            Complete Guide
+                        </h3>
+
+                        <p class="instructor">
+                            TRun Cloud Academy
+                        </p>
+
+
+                        <div class="rating">
+
+                            <strong>
+                                4.6
+                            </strong>
+
+                            <span class="stars">
+                                ★★★★★
+                            </span>
+
+                            <small>
+                                (7,120)
+                            </small>
+
+                        </div>
+
+
+                        <div class="course-bottom">
+
+                            <strong class="price">
+                                ₹749
+                            </strong>
+
+                            <del>
+                                ₹2,799
+                            </del>
+
+                            <button class="cart-btn">
+
+                                Add to cart
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </div>
+
+
+            <button class="course-arrow right"
+                    onclick="moveCourses('popular', 1)">
+
+                <i class="fa-solid fa-chevron-right"></i>
+
+            </button>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- RECOMMENDED SECTION -->
+<!-- ========================================================= -->
+
+<section class="section-container"
+         id="recommended">
+
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                RECOMMENDED
+            </span>
+
+            <h2>
+                Recommended for you
+            </h2>
+
+            <p>
+                Courses selected to help you
+                continue your learning journey.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="mini-course-grid">
+
+        {% for course in recomended_courses %}
+        <article class="mini-course-card">
+            {% if not course.thumbnail %}
+            <img
+                src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=500&q=80"
+                alt="JavaScript"
+            >
+            {% else %}
+                <img
+                src="{{course.thumbnail.url}}"
+                alt="{{course.title}}"
+                >
+            {% endif %}
+
+            <div class="mini-course-content">
+
+                <span>
+                    {{course.category.name}}
+                </span>
+
+                <h3>
+                    {{course.title}}
+                </h3>
+
+                <p>
+                    4.8 ★
+                </p>
+
+                <strong>
+                    {{course.price}}
+                </strong>
+
+            </div>
+
+        </article>
+        {% endfor %}
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- LEARNING PATH -->
+<!-- ========================================================= -->
+
+<section class="learning-path-section">
+
+
+    <div class="section-container">
+
+
+        <div class="learning-path-content">
+
+            <div>
+
+                <span class="section-label">
+                    CAREER PATH
+                </span>
+
+                <h2>
+                    Learn. Practice. Build.
+                    Get job-ready.
+                </h2>
+
+                <p>
+                    Follow structured learning paths designed
+                    to take you from beginner to professional.
+                </p>
+
+
+                <div class="path-features">
+
+                    <div>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Structured courses
+
+                    </div>
+
+
+                    <div>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Coding practice
+
+                    </div>
+
+
+                    <div>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Real-world projects
+
+                    </div>
+
+
+                    <div>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Certificates
+
+                    </div>
+
+                </div>
+
+
+                <a href="#courses"
+                   class="dark-primary-btn">
+
+                    Explore Learning Paths
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+
+            <div class="learning-path-image">
+
+                <img
+                    src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80"
+                    alt="Learning path"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- STUDENT BENEFITS -->
+<!-- ========================================================= -->
+
+<section class="section-container">
+
+
+    <div class="section-heading centered">
+
+        <div>
+
+            <span class="section-label">
+                WHY TRUN?
+            </span>
+
+            <h2>
+                Everything you need to learn
+            </h2>
+
+            <p>
+                A complete learning platform for
+                students, instructors and professionals.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="benefit-grid">
+
+
+        <div class="benefit-card">
+
+            <div class="benefit-icon">
+
+                <i class="fa-solid fa-video"></i>
+
+            </div>
+
+            <h3>
+                Learn from courses
+            </h3>
+
+            <p>
+                Watch structured lessons and
+                learn at your own pace.
+            </p>
+
+        </div>
+
+
+        <div class="benefit-card">
+
+            <div class="benefit-icon">
+
+                <i class="fa-solid fa-code"></i>
+
+            </div>
+
+            <h3>
+                Practice coding
+            </h3>
+
+            <p>
+                Solve coding problems and
+                improve your programming skills.
+            </p>
+
+        </div>
+
+
+        <div class="benefit-card">
+
+            <div class="benefit-icon">
+
+                <i class="fa-solid fa-robot"></i>
+
+            </div>
+
+            <h3>
+                AI Learning Assistant
+            </h3>
+
+            <p>
+                Ask questions and get help
+                while learning.
+            </p>
+
+        </div>
+
+
+        <div class="benefit-card">
+
+            <div class="benefit-icon">
+
+                <i class="fa-solid fa-certificate"></i>
+
+            </div>
+
+            <h3>
+                Earn certificates
+            </h3>
+
+            <p>
+                Complete courses and earn
+                certificates for your achievements.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- TESTIMONIALS -->
+<!-- ========================================================= -->
+
+<section class="testimonial-section">
+
+
+    <div class="section-container">
+
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    STUDENT STORIES
+                </span>
+
+                <h2>
+                    What our learners say
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="testimonial-grid">
+
+
+            <div class="testimonial-card">
+
+                <div class="quote-icon">
+                    "
+                </div>
+
+                <p>
+                    TRun helped me understand programming
+                    concepts clearly and gave me the confidence
+                    to build real projects.
+                </p>
+
+                <div class="student-info">
+
+                    <div class="student-avatar">
+                        A
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Arun Kumar
+                        </strong>
+
+                        <span>
+                            Python Student
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="testimonial-card">
+
+                <div class="quote-icon">
+                    "
+                </div>
+
+                <p>
+                    The coding practice and structured courses
+                    made learning much easier for me.
+                </p>
+
+                <div class="student-info">
+
+                    <div class="student-avatar">
+                        S
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Sneha Reddy
+                        </strong>
+
+                        <span>
+                            Data Science Student
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="testimonial-card">
+
+                <div class="quote-icon">
+                    "
+                </div>
+
+                <p>
+                    I enjoyed learning Django and building
+                    projects while following the course lessons.
+                </p>
+
+                <div class="student-info">
+
+                    <div class="student-avatar">
+                        R
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Rahul
+                        </strong>
+
+                        <span>
+                            Full Stack Student
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- ABOUT -->
+<!-- ========================================================= -->
+
+<section class="about-section"
+         id="about">
+
+
+    <div class="section-container">
+
+
+        <div class="about-grid">
+
+
+            <div class="about-image">
+
+                <img
+                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80"
+                    alt="Students"
+                >
+
+            </div>
+
+
+            <div class="about-content">
+
+                <span class="section-label">
+                    ABOUT TRUN
+                </span>
+
+                <h2>
+                    A platform built for
+                    modern learning
+                </h2>
+
+                <p>
+                    TRun Learning Platform is designed to
+                    provide students with a complete environment
+                    for learning, practicing and building
+                    real-world skills.
+                </p>
+
+                <p>
+                    From structured courses and coding practice
+                    to AI-powered assistance, TRun brings
+                    everything learners need into one platform.
+                </p>
+
+
+                <div class="about-stats">
+
+                    <div>
+
+                        <strong>
+                            100+
+                        </strong>
+
+                        <span>
+                            Courses
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            10K+
+                        </strong>
+
+                        <span>
+                            Students
+                        </span>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            50+
+                        </strong>
+
+                        <span>
+                            Instructors
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ========================================================= -->
+<!-- CTA -->
+<!-- ========================================================= -->
+
+<section class="cta-section">
+
+
+    <div class="cta-content">
+
+        <span>
+            START YOUR JOURNEY
+        </span>
+
+        <h2>
+            Ready to start learning?
+        </h2>
+
+        <p>
+            Explore courses, build skills and
+            take the next step toward your career.
+        </p>
+
+
+        <div class="cta-buttons">
+
+            {% if user.is_authenticated %}
+
+            <a href="{% url 'all_courses' %}"
+               class="cta-primary">
+
+                Explore Courses
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+            {% else %}
+
+            <a href="{% url 'register' %}"
+               class="cta-primary">
+
+                Get Started
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+            <a href="{% url 'login' %}"
+               class="cta-secondary">
+
+                Login
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+<!-- ========================================================= -->
+<!-- JAVASCRIPT FOR SLIDERS -->
+<!-- ========================================================= -->
+
+
+/* =========================================================
+   HERO BANNER SLIDER
+   ========================================================= */
+
+let currentHero = 0;
+
+const heroSlides =
+    document.querySelectorAll(".hero-slide");
+
+const heroDots =
+    document.querySelectorAll(".hero-dot");
+
+
+function showHero(index) {
+
+    if (heroSlides.length === 0) {
+        return;
+    }
+
+
+    heroSlides.forEach(function(slide) {
+
+        slide.classList.remove("active");
+
+    });
+
+
+    heroDots.forEach(function(dot) {
+
+        dot.classList.remove("active");
+
+    });
+
+
+    currentHero = index;
+
+
+    if (currentHero >= heroSlides.length) {
+
+        currentHero = 0;
+
+    }
+
+
+    if (currentHero < 0) {
+
+        currentHero =
+            heroSlides.length - 1;
+
+    }
+
+
+    heroSlides[currentHero]
+        .classList.add("active");
+
+
+    if (heroDots.length > 0) {
+
+        heroDots[currentHero]
+            .classList.add("active");
+
+    }
+
+}
+
+
+function changeHero(direction) {
+
+    if (heroSlides.length <= 1) {
+        return;
+    }
+
+
+    currentHero += direction;
+
+
+    if (currentHero >= heroSlides.length) {
+
+        currentHero = 0;
+
+    }
+
+
+    if (currentHero < 0) {
+
+        currentHero =
+            heroSlides.length - 1;
+
+    }
+
+
+    showHero(currentHero);
+
+}
+
+
+/* Automatically change banner */
+
+if (heroSlides.length > 1) {
+
+    setInterval(function() {
+
+        changeHero(1);
+
+    }, 5000);
+
+}
+
+
+/* =========================================================
+   COURSE SLIDER
+   ========================================================= */
+
+function moveCourses(type, direction) {
+
+    const slider =
+        document.getElementById("popularCourses");
+
+
+    const card =
+        slider.querySelector(".course-card");
+
+
+    if (!card) {
+        return;
+    }
+
+
+    const cardWidth =
+        card.offsetWidth + 20;
+
+
+    slider.scrollBy({
+
+        left: direction * cardWidth,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+const searchInput =
+    document.getElementById("courseSearch");
+
+
+searchInput.addEventListener("keyup", function() {
+
+    const searchValue =
+        this.value.toLowerCase();
+
+
+    const courseCards =
+        document.querySelectorAll(".course-card");
+
+
+    courseCards.forEach(function(card) {
+
+        const courseName =
+            card.querySelector("h3")
+                .textContent
+                .toLowerCase();
+
+
+        if (courseName.includes(searchValue)) {
+
+            card.style.display = "";
+
+        } else {
+
+            card.style.display = "none";
+
+        }
+
+    });
+
+});
+
+</script>
+{% endblock %}

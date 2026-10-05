@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Learning | TRun Learning Platform
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/my_learning.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<main class="learning-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <section class="learning-header">
+
+        <div class="learning-header-inner">
+
+            <div class="learning-heading">
+
+                <span class="learning-eyebrow">
+                    LEARNING SPACE
+                </span>
+
+                <h1>
+                    My Learning
+                </h1>
+
+                <p>
+                    Continue your courses and keep building your skills.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'all_courses' %}"
+                class="browse-courses-btn"
+            >
+                <i class="fa-solid fa-compass"></i>
+                Browse Courses
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <section class="learning-container">
+
+
+        {% if enrollments %}
+
+
+            <!-- =================================================
+                 LEARNING SUMMARY
+                 ================================================= -->
+
+            <div class="learning-summary">
+
+
+                <!-- Total Courses -->
+
+                <div class="summary-card">
+
+                    <div class="summary-icon courses-icon">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+
+                    <div class="summary-info">
+
+                        <span>
+                            Enrolled Courses
+                        </span>
+
+                        <strong>
+                            {{ enrollments|length }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Active -->
+
+                <div class="summary-card">
+
+                    <div class="summary-icon active-icon">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+
+                    <div class="summary-info">
+
+                        <span>
+                            In Progress
+                        </span>
+
+                        <strong>
+                            {{ active_count|default:"0" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Completed -->
+
+                <div class="summary-card">
+
+                    <div class="summary-icon completed-icon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+
+                    <div class="summary-info">
+
+                        <span>
+                            Completed
+                        </span>
+
+                        <strong>
+                            {{ completed_count|default:"0" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Learning Progress -->
+
+                <div class="summary-card">
+
+                    <div class="summary-icon progress-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div class="summary-info">
+
+                        <span>
+                            Overall Progress
+                        </span>
+
+                        <strong>
+                            {{ overall_progress|default:"0" }}%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CONTINUE LEARNING
+                 ================================================= -->
+
+            {% if continue_course %}
+
+            <section class="continue-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-label">
+                            PICK UP WHERE YOU LEFT OFF
+                        </span>
+
+                        <h2>
+                            Continue Learning
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="continue-card">
+
+
+                    <!-- Course Image -->
+
+                    <div class="continue-image">
+
+                        {% if continue_course.course.thumbnail %}
+
+                            <img
+                                src="{{ continue_course.course.thumbnail.url }}"
+                                alt="{{ continue_course.course.title }}"
+                            >
+
+                        {% else %}
+
+                            <img
+                                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80"
+                                alt="{{ continue_course.course.title }}"
+                            >
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Course Content -->
+
+                    <div class="continue-content">
+
+                        <span class="continue-category">
+                            {{ continue_course.course.category.name }}
+                        </span>
+
+                        <h3>
+                            {{ continue_course.course.title }}
+                        </h3>
+
+
+                        <div class="continue-instructor">
+
+                            <div class="continue-avatar">
+
+                                {% if continue_course.course.instructor %}
+
+                                    {{ continue_course.course.instructor.first_name|first|upper }}
+
+                                {% else %}
+
+                                    T
+
+                                {% endif %}
+
+                            </div>
+
+                            <span>
+
+                                {% if continue_course.course.instructor %}
+
+                                    {{ continue_course.course.instructor.first_name }}
+                                    {{ continue_course.course.instructor.last_name }}
+
+                                {% else %}
+
+                                    TRun Instructor
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- Progress -->
+
+                        <div class="continue-progress">
+
+                            <div class="progress-header">
+
+                                <span>
+                                    Your Progress
+                                </span>
+
+                                <strong>
+                                    {{ continue_course.completion_percentage }}%
+                                </strong>
+
+                            </div>
+
+                            <div class="progress-track">
+
+                                <div
+                                    class="progress-fill"
+                                    style="width: {{ continue_course.completion_percentage }} %;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="continue-meta">
+
+                            <span>
+                                <i class="fa-regular fa-clock"></i>
+                                {{ continue_course.course.duration_minutes }} min
+                            </span>
+
+                            <span>
+                                <i class="fa-solid fa-signal"></i>
+                                {{ continue_course.course.get_level_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Continue Button -->
+
+                    <div class="continue-action">
+
+                        <a
+                            href="#"
+                            class="continue-btn"
+                        >
+                            {% if continue_course.completion_percentage > 0 %}
+                                Continue Learning
+                            {% else %}
+                                Start Learning
+                            {% endif %}
+
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            {% endif %}
+
+
+
+            <!-- =================================================
+                 MY COURSES
+                 ================================================= -->
+
+            <section class="courses-section">
+
+
+                <div class="courses-section-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            YOUR COURSES
+                        </span>
+
+                        <h2>
+                            All My Courses
+                        </h2>
+
+                    </div>
+
+
+                    <div class="course-filter">
+
+                        <button class="filter-button active">
+                            All
+                        </button>
+
+                        <!-- <button class="filter-button">
+                            In Progress
+                        </button>
+
+                        <button class="filter-button">
+                            Completed
+                        </button> -->
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     COURSE GRID
+                     ================================================= -->
+
+                <div class="learning-grid">
+
+
+                    {% for enrollment in enrollments %}
+
+                    <article class="learning-card">
+
+
+                        <!-- Course Image -->
+
+                        <div class="learning-card-image">
+
+                            {% if enrollment.course.thumbnail %}
+
+                                <img
+                                    src="{{ enrollment.course.thumbnail.url }}"
+                                    alt="{{ enrollment.course.title }}"
+                                >
+
+                            {% else %}
+
+                                <img
+                                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80"
+                                    alt="{{ enrollment.course.title }}"
+                                >
+
+                            {% endif %}
+
+
+                            <!-- Status -->
+
+                            {% if enrollment.status == "COMPLETED" %}
+
+                                <span class="course-status completed">
+                                    <i class="fa-solid fa-check"></i>
+                                    Completed
+                                </span>
+
+                            {% elif enrollment.status == "ACTIVE" %}
+
+                                {% if enrollment.completion_percentage > 0 %}
+
+                                    <span class="course-status progress">
+                                        In Progress
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="course-status new">
+                                        Not Started
+                                    </span>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <span class="course-status cancelled">
+                                    Cancelled
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Card Body -->
+
+                        <div class="learning-card-body">
+
+
+                            <!-- Category -->
+
+                            <span class="learning-category">
+                                {{ enrollment.course.category.name }}
+                            </span>
+
+
+                            <!-- Title -->
+
+                            <h3 class="learning-title">
+                                {{ enrollment.course.title }}
+                            </h3>
+
+
+                            <!-- Instructor -->
+
+                            <div class="learning-instructor">
+
+                                <div class="learning-avatar">
+
+                                    {% if enrollment.course.instructor %}
+
+                                        {{ enrollment.course.instructor.first_name|first|upper }}
+
+                                    {% else %}
+
+                                        T
+
+                                    {% endif %}
+
+                                </div>
+
+                                <span>
+
+                                    {% if enrollment.course.instructor %}
+
+                                        {{ enrollment.course.instructor.first_name }}
+                                        {{ enrollment.course.instructor.last_name }}
+
+                                    {% else %}
+
+                                        TRun Instructor
+
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- Course Meta -->
+
+                            <div class="learning-meta">
+
+                                <span>
+                                    <i class="fa-regular fa-clock"></i>
+                                    {{ enrollment.course.duration_minutes }} min
+                                </span>
+
+                                <span>
+                                    <i class="fa-solid fa-signal"></i>
+                                    {{ enrollment.course.get_level_display }}
+                                </span>
+
+                            </div>
+
+
+                            <!-- Progress -->
+
+                            <div class="card-progress">
+
+                                <div class="card-progress-header">
+
+                                    <span>
+                                        Progress
+                                    </span>
+
+                                    <strong>
+                                        {{ enrollment.completion_percentage }}%
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="card-progress-track">
+
+                                    <div
+                                        class="card-progress-fill"
+                                        style="width: {{ enrollment.completion_percentage }}%;"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Bottom -->
+
+                            <div class="learning-card-bottom">
+
+
+                                <div class="enrollment-info">
+
+                                    {% if enrollment.status == "COMPLETED" %}
+
+                                        <span class="completed-text">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Course Completed
+                                        </span>
+
+                                    {% elif enrollment.last_accessed_at %}
+
+                                        <span>
+                                            <i class="fa-regular fa-clock"></i>
+                                            Last accessed
+                                        </span>
+
+                                    {% else %}
+
+                                        <span>
+                                            <i class="fa-regular fa-calendar"></i>
+                                            Enrolled
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <a
+                                    href="#"
+                                    class="learning-action"
+                                >
+
+                                    {% if enrollment.status == "COMPLETED" %}
+
+                                        Review
+
+                                    {% elif enrollment.completion_percentage > 0 %}
+
+                                        Continue
+
+                                    {% else %}
+
+                                        Start
+
+                                    {% endif %}
+
+                                    <i class="fa-solid fa-arrow-right"></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                    {% endfor %}
+
+
+                </div>
+
+            </section>
+
+
+        {% else %}
+
+
+            <!-- =================================================
+                 EMPTY LEARNING
+                 ================================================= -->
+
+            <section class="empty-learning">
+
+                <div class="empty-learning-icon">
+
+                    <i class="fa-solid fa-book-open"></i>
+
+                </div>
+
+                <h2>
+                    Start Your Learning Journey
+                </h2>
+
+                <p>
+                    You haven't enrolled in any courses yet.
+                    Explore our courses and start learning new skills today.
+                </p>
+
+                <a
+                    href="{% url 'all_courses' %}"
+                    class="empty-browse-btn"
+                >
+                    <i class="fa-solid fa-compass"></i>
+                    Explore Courses
+                </a>
+
+            </section>
+
+
+        {% endif %}
+
+
+    </section>
+
+</main>
+
+{% endblock %}

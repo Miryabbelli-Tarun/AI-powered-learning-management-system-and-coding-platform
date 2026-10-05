@@ -1,0 +1,847 @@
+/* =========================================================
+   COURSES PAGE
+   ========================================================= */
+
+.courses-page {
+    width: 100%;
+    padding: 32px 35px 70px;
+}
+
+
+/* =========================================================
+   PAGE HEADING
+   ========================================================= */
+
+.page-heading {
+    margin-bottom: 26px;
+}
+
+.page-heading h1 {
+    font-size: 31px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #171a2e;
+    margin-bottom: 7px;
+}
+
+.page-heading p {
+    color: #6a6f73;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.courses-toolbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* =========================================================
+   FILTER BUTTON
+   ========================================================= */
+
+.filter-button {
+    height: 42px;
+    padding: 0 18px;
+    border: 1px solid #70757a;
+    border-radius: 22px;
+    background: #ffffff;
+    color: #1c1d1f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.filter-button:hover {
+    background: #f5f5f5;
+    border-color: #5624d0;
+    color: #5624d0;
+}
+
+.course-count {
+    color: #6a6f73;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sort-container label {
+    font-size: 14px;
+    color: #555;
+}
+
+.sort-container select {
+    height: 42px;
+    min-width: 180px;
+    padding: 0 11px;
+    border: 1px solid #8b8e92;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #1c1d1f;
+    outline: none;
+    cursor: pointer;
+}
+
+.sort-container select:focus {
+    border-color: #5624d0;
+}
+
+
+/* =========================================================
+   FILTER OVERLAY
+   ========================================================= */
+
+.filter-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.48);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.filter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* =========================================================
+   FILTER DRAWER
+   ========================================================= */
+
+.filter-drawer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 385px;
+    max-width: 90vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 950;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 8px 0 28px rgba(0, 0, 0, 0.18);
+}
+
+.filter-drawer.active {
+    transform: translateX(0);
+}
+
+
+/* =========================================================
+   FILTER HEADER
+   ========================================================= */
+
+.filter-header {
+    min-height: 78px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border-bottom: 1px solid #dcdde0;
+    flex-shrink: 0;
+}
+
+.filter-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.filter-heading h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1c1d1f;
+}
+
+.filter-heading span {
+    color: #777;
+    font-size: 12px;
+}
+
+.close-filter {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.close-filter:hover {
+    background: #f1f1f1;
+}
+
+
+/* =========================================================
+   FILTER CONTENT
+   ========================================================= */
+
+.filter-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.filter-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.filter-content::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+.filter-content::-webkit-scrollbar-thumb {
+    background: #b5b5b5;
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   FILTER SECTION
+   ========================================================= */
+
+.filter-section {
+    padding: 19px 21px;
+    border-bottom: 1px solid #e3e3e3;
+}
+
+.filter-title {
+    width: 100%;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    margin-bottom: 16px;
+    cursor: pointer;
+    color: #1c1d1f;
+}
+
+.filter-title span {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.filter-title i {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.filter-section.collapsed .filter-title {
+    margin-bottom: 0;
+}
+
+.filter-section.collapsed .filter-title i {
+    transform: rotate(180deg);
+}
+
+.filter-section.collapsed .filter-options {
+    display: none;
+}
+
+
+/* =========================================================
+   FILTER OPTIONS
+   ========================================================= */
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.checkbox-item,
+.radio-item {
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: #42464a;
+    font-size: 14px;
+}
+
+.checkbox-item:hover,
+.radio-item:hover {
+    color: #5624d0;
+}
+
+.checkbox-item input,
+.radio-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   CUSTOM CHECKBOX
+   ========================================================= */
+
+.custom-checkbox {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    border: 1.5px solid #72777c;
+    border-radius: 3px;
+    position: relative;
+    transition: 0.2s ease;
+}
+
+.checkbox-item input:checked + .custom-checkbox {
+    background: #5624d0;
+    border-color: #5624d0;
+}
+
+.checkbox-item input:checked + .custom-checkbox::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 9px;
+    left: 5px;
+    top: 1px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+
+/* =========================================================
+   CUSTOM RADIO
+   ========================================================= */
+
+.custom-radio {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    border: 1.5px solid #72777c;
+    border-radius: 50%;
+    position: relative;
+}
+
+.radio-item input:checked + .custom-radio {
+    border-color: #5624d0;
+}
+
+.radio-item input:checked + .custom-radio::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5624d0;
+    left: 3px;
+    top: 3px;
+}
+
+
+/* =========================================================
+   EXTRA CATEGORIES
+   ========================================================= */
+
+.extra-categories {
+    display: none;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.extra-categories.show {
+    display: flex;
+}
+
+
+/* =========================================================
+   SHOW MORE
+   ========================================================= */
+
+.show-more-button {
+    border: none;
+    background: transparent;
+    color: #5624d0;
+    padding: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.show-more-button:hover {
+    color: #401b9b;
+}
+
+.show-more-button i {
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   FILTER FOOTER
+   ========================================================= */
+
+.filter-footer {
+    min-height: 72px;
+    padding: 13px 20px;
+    border-top: 1px solid #dcdde0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.clear-button,
+.apply-button {
+    flex: 1;
+    height: 42px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.clear-button {
+    background: #ffffff;
+    border: 1px solid #5624d0;
+    color: #5624d0;
+}
+
+.clear-button:hover {
+    background: #f5f0ff;
+}
+
+.apply-button {
+    background: #5624d0;
+    border: 1px solid #5624d0;
+    color: #ffffff;
+}
+
+.apply-button:hover {
+    background: #401b9b;
+}
+
+
+/* =========================================================
+   COURSE GRID
+   ========================================================= */
+
+.course-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+
+/* =========================================================
+   COURSE CARD
+   ========================================================= */
+
+.course-card {
+    background: #ffffff;
+    border: 1px solid #e1e3e6;
+    border-radius: 12px;
+    overflow: hidden;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    border-color: #d3c4f5;
+    box-shadow: 0 12px 30px rgba(31, 20, 62, 0.12);
+}
+
+
+/* =========================================================
+   COURSE IMAGE
+   ========================================================= */
+
+.course-image {
+    width: 100%;
+    height: 185px;
+    background: #f1f1f1;
+    position: relative;
+    overflow: hidden;
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.course-card:hover .course-image img {
+    transform: scale(1.04);
+}
+
+
+/* =========================================================
+   WISHLIST
+   ========================================================= */
+
+.wishlist-button {
+    position: absolute;
+    right: 11px;
+    top: 11px;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    font-size: 17px;
+    color: #292b35;
+    transition: 0.2s ease;
+}
+
+.wishlist-button:hover {
+    color: #5624d0;
+    transform: scale(1.05);
+}
+
+
+/* =========================================================
+   COURSE CONTENT
+   ========================================================= */
+
+.course-content {
+    padding: 17px;
+}
+
+.course-title {
+    font-size: 17px;
+    line-height: 1.35;
+    min-height: 46px;
+    margin-bottom: 7px;
+    font-weight: 700;
+    color: #171a2e;
+}
+
+.course-description {
+    color: #555;
+    font-size: 13px;
+    line-height: 1.45;
+    min-height: 38px;
+    margin-bottom: 8px;
+}
+
+.instructor {
+    color: #6a6f73;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   COURSE INFO
+   ========================================================= */
+
+.course-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 13px;
+}
+
+.course-info span {
+    background: #f5f5f7;
+    color: #555;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 11px;
+}
+
+.course-info i {
+    margin-right: 3px;
+}
+
+
+/* =========================================================
+   PRICE
+   ========================================================= */
+
+.course-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 13px;
+    min-height: 30px;
+}
+
+.course-price strong {
+    font-size: 19px;
+    font-weight: 800;
+    color: #171a2e;
+}
+
+.course-price del {
+    font-size: 12px;
+    color: #777;
+}
+
+
+/* =========================================================
+   FREE COURSE
+   ========================================================= */
+.free-price{
+    color: rgb(59, 231, 59);
+}
+.course-price .free-price {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #eaf8f0;
+    border: 1px solid #b9e7ca;
+    color: #137a3d;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.course-price .free-price::before {
+    content: "✓";
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #198754;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   COURSE ACTIONS
+   ========================================================= */
+
+.course-actions {
+    border-top: 1px solid #eeeeee;
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* =========================================================
+   ADD TO CART
+   ========================================================= */
+
+.add-cart-button {
+    flex: 1;
+    height: 39px;
+    border: 1px solid #5624d0;
+    border-radius: 5px;
+    background: #5624d0;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: 0.2s ease;
+}
+
+.add-cart-button:hover {
+    background: #401b9b;
+    border-color: #401b9b;
+}
+
+.add-cart-button i {
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   VIEW COURSE
+   ========================================================= */
+
+.view-course {
+    color: #5624d0;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.view-course:hover {
+    text-decoration: underline;
+}
+
+.view-course i {
+    margin-left: 2px;
+}
+
+
+/* =========================================================
+   RESPONSIVE - LARGE DESKTOP
+   ========================================================= */
+
+@media (max-width: 1350px) {
+
+    .course-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .course-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .courses-page {
+        padding: 25px 15px 55px;
+    }
+
+    .page-heading h1 {
+        font-size: 27px;
+    }
+
+    .courses-toolbar {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .sort-container label {
+        display: none;
+    }
+
+    .sort-container select {
+        min-width: 150px;
+    }
+
+    .course-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-image {
+        height: 220px;
+    }
+
+    .filter-drawer {
+        width: 350px;
+        max-width: 92vw;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+    .courses-toolbar {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .toolbar-left {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .sort-container {
+        width: 100%;
+    }
+
+    .sort-container select {
+        width: 100%;
+    }
+
+    .filter-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .course-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .view-course {
+        text-align: center;
+        padding: 4px;
+    }
+
+}

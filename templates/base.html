@@ -1,0 +1,878 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}TRun Learning Platform{% endblock %}</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Base CSS -->
+    <link rel="stylesheet"
+          href="{% static 'css/base.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<!-- ========================================================= -->
+<!-- HEADER -->
+<!-- ========================================================= -->
+
+<header class="main-header">
+
+    <div class="header-container">
+
+
+        <!-- LOGO -->
+        <div class="logo-area">
+
+            <a href="{% url 'home' %}" class="logo-link">
+
+                <div class="logo-mark">
+                    T
+                </div>
+
+                <span class="logo-text">
+                    TRun
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- EXPLORE -->
+        <div class="explore-wrapper">
+
+            <button class="explore-btn">
+
+                <i class="fa-solid fa-compass"></i>
+
+                Explore
+
+                <i class="fa-solid fa-chevron-down explore-arrow"></i>
+
+            </button>
+
+
+            <div class="explore-menu">
+
+                <div class="explore-column">
+
+                    <h4>Development</h4>
+                    <a href="{% url 'all_courses' %}">Courses</a>
+                    <a href="{% url 'all_courses' %}?price=Free">Free courses</a>
+                    <a href="{% url 'all_courses' %}?price=Paid">Paid courses</a>
+                    <a href="#courses">exams</a>
+                    <a href="#courses">Coding practice</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SEARCH -->
+        <div class="search-box">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <form action="{% url 'all_courses' %}" method="GET">
+            <input
+                type="text"
+                placeholder="Search for courses, skills and topics"
+                id="courseSearch"
+                name="search_box"
+                value="{{search_key}}"
+            >
+            </form>
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LOGGED IN HEADER -->
+        <!-- ================================================= -->
+
+        {% if user.is_authenticated %}
+
+        <div class="header-actions">
+
+
+            <!-- MY LEARNING -->
+            <a href="{% url 'my_learning' %}"
+               class="header-link">
+
+                My Learning
+
+            </a>
+
+            <!-- PRACTICE CODING -->
+            <a href="#practice-coding"
+            class="header-link">
+
+                Practice Coding
+
+            </a>
+
+
+            <!-- WISHLIST -->
+            <a href="{% url 'wishlist' %}"
+               class="header-icon"
+               title="Wishlist">
+
+                <i class="fa-regular fa-heart"></i>
+
+            </a>
+
+
+            <!-- CART -->
+            <a href="#cart"
+               class="header-icon cart-icon"
+               title="Cart">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <span class="cart-count">
+                    0
+                </span>
+
+            </a>
+
+
+            <!-- NOTIFICATION -->
+            <a href="#notifications"
+               class="header-icon"
+               title="Notifications">
+
+                <i class="fa-regular fa-bell"></i>
+
+                <span class="notification-dot"></span>
+
+            </a>
+
+
+            <!-- PROFILE -->
+            <div class="profile-wrapper">
+
+                <button class="profile-button">
+
+                    {% if user.first_name %}
+
+                        {{ user.first_name|first|upper }}
+
+                    {% else %}
+
+                        U
+
+                    {% endif %}
+
+                </button>
+
+
+                <!-- PROFILE DROPDOWN -->
+                <div class="profile-dropdown">
+
+
+                    <div class="profile-top">
+
+                        <div class="profile-avatar-large">
+
+                            {% if user.first_name %}
+                                {{ user.first_name|first|upper }}
+                            {% else %}
+                                U
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="profile-details">
+
+                            <h3>
+                                {{ user.first_name }}
+                                {{ user.last_name }}
+                            </h3>
+
+                            <p>
+                                {{ user.email }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dropdown-divider"></div>
+
+
+                    <a href="{% url 'my_learning' %}">
+
+                        <i class="fa-solid fa-book-open"></i>
+
+                        My Learning
+
+                    </a>
+
+
+                    <a href="{% url 'wishlist' %}">
+
+                        <i class="fa-regular fa-heart"></i>
+
+                        Wishlist
+
+                    </a>
+
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-cart-shopping"></i>
+
+                        Cart
+
+                    </a>
+
+                    <a href="#practice-coding">
+
+                        <i class="fa-solid fa-code"></i>
+
+                        Practice Coding
+
+                    </a>
+
+
+                    <a href="#notifications">
+
+                        <i class="fa-regular fa-bell"></i>
+
+                        Notifications
+
+                    </a>
+
+
+                    {% if user.role == "ADMIN" or user.role == "TEACHER" %}
+
+                    <a href="#dashboard">
+
+                        <i class="fa-solid fa-gauge-high"></i>
+
+                        Dashboard
+
+                    </a>
+
+                    {% endif %}
+
+
+                    <a href="#settings">
+
+                        <i class="fa-solid fa-gear"></i>
+
+                        Settings
+
+                    </a>
+
+
+                    <div class="dropdown-divider"></div>
+
+
+                    <a href="{% url 'logout' %}"
+                       class="logout-link">
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+
+                        Logout
+
+                    </a>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        {% else %}
+
+        <!-- ================================================= -->
+        <!-- LOGGED OUT HEADER -->
+        <!-- ================================================= -->
+
+        <div class="guest-actions">
+
+
+            <a href="{% url 'login' %}"
+               class="login-btn">
+
+                Log in
+
+            </a>
+
+
+            <a href="{% url 'register' %}"
+               class="signup-btn">
+
+                Sign up
+
+            </a>
+
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</header>
+
+
+
+
+
+{% block content %}
+{% endblock %}
+
+<!-- ========================================================= -->
+<!-- FIXED AI CHATBOT -->
+<!-- ========================================================= -->
+
+<div class="chatbot-container">
+
+
+    <!-- CHAT WINDOW -->
+
+    <div class="chatbot-window"
+         id="chatbotWindow">
+
+
+        <!-- CHAT HEADER -->
+
+        <div class="chatbot-header">
+
+            <div class="chatbot-title">
+
+                <div class="chatbot-avatar">
+
+                    <i class="fa-solid fa-robot"></i>
+
+                </div>
+
+                <div>
+
+                    <h3>
+                        TRun AI Assistant
+                    </h3>
+
+                    <span>
+                        <span class="online-dot"></span>
+                        Online
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button class="chatbot-close"
+                    onclick="toggleChatbot()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+
+        <!-- CHAT BODY -->
+
+        <div class="chatbot-body"
+             id="chatbotBody">
+
+
+            <!-- BOT MESSAGE -->
+
+            <div class="chat-message bot-message">
+
+                <div class="message-avatar">
+
+                    <i class="fa-solid fa-robot"></i>
+
+                </div>
+
+                <div class="message-content">
+
+                    <p>
+                        Hi! 👋 Welcome to TRun Learning Platform.
+                    </p>
+
+                    <p>
+                        How can I help you today?
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK QUESTIONS -->
+
+            <div class="quick-questions">
+
+                <button onclick="sendQuickQuestion('Which Python course should I learn?')">
+
+                    Python courses
+
+                </button>
+
+                <button onclick="sendQuickQuestion('How can I start coding practice?')">
+
+                    Coding practice
+
+                </button>
+
+                <button onclick="sendQuickQuestion('How do I enroll in a course?')">
+
+                    Course enrollment
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- CHAT INPUT -->
+
+        <div class="chatbot-input-area">
+
+            <input
+                type="text"
+                id="chatbotInput"
+                placeholder="Ask anything..."
+                autocomplete="off"
+            >
+
+
+            <button
+                class="chatbot-send"
+                onclick="sendChatMessage()">
+
+                <i class="fa-solid fa-paper-plane"></i>
+
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- FLOATING CHAT BUTTON -->
+
+    <button class="chatbot-floating-button"
+            id="chatbotButton"
+            onclick="toggleChatbot()">
+
+        <i class="fa-solid fa-robot"></i>
+
+        <span class="chatbot-notification">
+            1
+        </span>
+
+    </button>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- FOOTER -->
+<!-- ========================================================= -->
+
+<footer class="footer">
+
+
+    <div class="footer-container">
+
+
+        <!-- FOOTER TOP -->
+
+        <div class="footer-top">
+
+
+            <div class="footer-brand">
+
+                <div class="footer-logo">
+
+                    <div class="logo-mark">
+                        T
+                    </div>
+
+                    <span>
+                        TRun
+                    </span>
+
+                </div>
+
+
+                <p>
+                    Learn skills. Build projects.
+                    Shape your future.
+                </p>
+
+
+                <div class="social-icons">
+
+                    <a href="#">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+
+                    <a href="#">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Explore
+                </h4>
+
+                <a href="#courses">
+                    Courses
+                </a>
+
+                <a href="#categories">
+                    Categories
+                </a>
+
+                <a href="#recommended">
+                    Recommended
+                </a>
+
+                <a href="#learning-path">
+                    Learning Paths
+                </a>
+
+            </div>
+
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Learn
+                </h4>
+
+                <a href="#development">
+                    Development
+                </a>
+
+                <a href="#datascience">
+                    Data Science
+                </a>
+
+                <a href="#ai">
+                    Artificial Intelligence
+                </a>
+
+                <a href="#cybersecurity">
+                    Cyber Security
+                </a>
+
+            </div>
+
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Company
+                </h4>
+
+                <a href="#about">
+                    About Us
+                </a>
+
+                <a href="#contact">
+                    Contact Us
+                </a>
+
+                <a href="#">
+                    Careers
+                </a>
+
+                <a href="#">
+                    Become an Instructor
+                </a>
+
+            </div>
+
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Support
+                </h4>
+
+                <a href="#">
+                    Help Center
+                </a>
+
+                <a href="#">
+                    FAQ
+                </a>
+
+                <a href="#">
+                    Privacy Policy
+                </a>
+
+                <a href="#">
+                    Terms & Conditions
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="footer-divider"></div>
+
+
+
+        <!-- FOOTER BOTTOM -->
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 TRun Learning Platform.
+                All rights reserved.
+            </p>
+
+
+            <div>
+
+                <a href="#">
+                    Privacy
+                </a>
+
+                <a href="#">
+                    Terms
+                </a>
+
+                <a href="#">
+                    Sitemap
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</footer>
+
+
+
+
+
+
+
+<script>
+/* =========================================================
+   AI CHATBOT
+   ========================================================= */
+
+function toggleChatbot() {
+
+    const chatbotWindow =
+        document.getElementById("chatbotWindow");
+
+    chatbotWindow.classList.toggle("active");
+
+}
+
+
+/* =========================================================
+   SEND QUICK QUESTION
+   ========================================================= */
+
+function sendQuickQuestion(question) {
+
+    const input =
+        document.getElementById("chatbotInput");
+
+    input.value = question;
+
+    sendChatMessage();
+
+}
+
+
+/* =========================================================
+   SEND MESSAGE
+   ========================================================= */
+
+function sendChatMessage() {
+
+    const input =
+        document.getElementById("chatbotInput");
+
+    const message =
+        input.value.trim();
+
+
+    if (!message) {
+        return;
+    }
+
+
+    const chatBody =
+        document.getElementById("chatbotBody");
+
+
+    /* USER MESSAGE */
+
+    const userMessage =
+        document.createElement("div");
+
+    userMessage.className =
+        "chat-message user-message";
+
+
+    userMessage.innerHTML = `
+
+        <div class="message-content">
+
+            <p>
+                ${message}
+            </p>
+
+        </div>
+
+    `;
+
+
+    chatBody.appendChild(userMessage);
+
+
+    input.value = "";
+
+
+    /* Temporary bot response */
+
+    setTimeout(function() {
+
+        const botMessage =
+            document.createElement("div");
+
+        botMessage.className =
+            "chat-message bot-message";
+
+
+        botMessage.innerHTML = `
+
+            <div class="message-avatar">
+
+                <i class="fa-solid fa-robot"></i>
+
+            </div>
+
+            <div class="message-content">
+
+                <p>
+                    I'm your TRun AI Assistant. 🤖
+                </p>
+
+                <p>
+                    The AI assistant will be connected
+                    to the backend in the next stage.
+                </p>
+
+            </div>
+
+        `;
+
+
+        chatBody.appendChild(botMessage);
+
+
+        chatBody.scrollTop =
+            chatBody.scrollHeight;
+
+
+    }, 700);
+
+
+    chatBody.scrollTop =
+        chatBody.scrollHeight;
+
+}
+
+
+/* =========================================================
+   ENTER KEY
+   ========================================================= */
+
+document
+    .getElementById("chatbotInput")
+    .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+
+            sendChatMessage();
+
+        }
+
+    });
+
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+
+</html>

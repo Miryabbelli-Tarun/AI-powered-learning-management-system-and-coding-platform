@@ -1,0 +1,72 @@
+venv/
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/
+media/
+# ==========================================
+# Django & Python Core
+# ==========================================
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.cfg
+.pytest_cache/
+.cache/
+
+# ==========================================
+# Environments & Packages
+# ==========================================
+# Excludes local virtual environments
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# Databases
+# ==========================================
+# Never commit your local database files
+*.sqlite3
+*.db
+
+# ==========================================
+# Media, Static, and System Uploads
+# ==========================================
+# Excludes user-uploaded files and collected static files
+/media/
+/static_root/
+/staticfiles/
+
+# ==========================================
+# Security & Sensitive Credentials
+# ==========================================
+# Never commit secret keys or password files
+.env
+*.env
+.secret
+secrets.json
+
+# ==========================================
+# IDEs and Text Editors
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db

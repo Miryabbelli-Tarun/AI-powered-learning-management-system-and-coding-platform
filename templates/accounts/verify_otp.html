@@ -1,0 +1,152 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify Email | TRun</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth/verify_otp.css' %}"
+    >
+
+</head>
+
+<body>
+
+<div class="otp-page">
+
+    <div class="otp-card">
+
+        <div class="brand-icon">
+            ✉
+        </div>
+
+        <span class="small-title">
+            EMAIL VERIFICATION
+        </span>
+
+        <h1>
+            Verify your email
+        </h1>
+
+        <p class="description">
+            We sent a 6-digit verification code to
+        </p>
+
+        <div class="email-display">
+            {{ email }}
+        </div>
+
+
+        {% if messages %}
+
+            <div class="messages">
+
+                {% for message in messages %}
+
+                    <div class="message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <form
+            method="POST"
+            action="{% url 'verify_otp' %}"
+            id="otpForm"
+        >
+
+            {% csrf_token %}
+
+            <label for="otp">
+                Enter OTP
+            </label>
+
+            <input
+                type="text"
+                id="otp"
+                name="otp"
+                maxlength="6"
+                minlength="6"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                placeholder="000000"
+                autocomplete="one-time-code"
+                required
+            >
+
+            <p class="otp-hint">
+                The OTP is valid for 10 minutes.
+            </p>
+
+            <button
+                type="submit"
+                class="verify-button"
+            >
+                Verify Email
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <div class="bottom-text">
+
+            Didn't receive the code?
+
+            <a href="{% url 'register' %}">
+                Register again
+            </a>
+
+        </div>
+
+
+        <a
+            href="{% url 'login' %}"
+            class="back-login"
+        >
+            ← Back to Login
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const otpInput =
+    document.getElementById("otp");
+
+otpInput.addEventListener(
+    "input",
+    function () {
+
+        this.value =
+            this.value
+            .replace(/\D/g, "")
+            .slice(0, 6);
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Courses | TRun
+Learning Platform
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses/courses.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<main class="courses-page">
+    <!-- =================================================
+
+         PAGE HEADING
+
+    ================================================== -->
+
+    <section class="page-heading">
+        <h1>Explore Courses</h1>
+
+        <p>Learn new skills and build your future with TRun.</p>
+    </section>
+
+    <!-- =================================================
+
+         TOOLBAR
+
+    ================================================== -->
+
+    <section class="courses-toolbar">
+        <!-- LEFT -->
+
+        <div class="toolbar-left">
+            <button type="button" class="filter-button" id="openFilter">
+                <i class="fa-solid fa-sliders"></i>
+
+                Filters
+            </button>
+
+            <span class="course-count"> {{courses | length}} courses </span>
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="sort-container">
+            <form action="" method="GET" >
+            <label for="sortCourses"> Sort by: </label>
+
+            <select id="sortCourses" name="selected_filter" onchange="this.form.submit()" >
+                
+                <option value="newest" {% if selected_filter == 'newest' %} selected {% endif %}>Newest</option>
+
+                <option value="oldest" {% if selected_filter == 'oldest' %} selected {% endif %}>Oldest</option>
+
+                <option value="low_to_high" {% if selected_filter == 'low_to_high' %} selected {% endif %} >Price: Low to High</option>
+
+                <option value="high_to_low" {% if selected_filter == 'high_to_low' %} selected {% endif %} >Price: High to Low</option>
+            </select>
+            </form>
+        </div>
+    </section>
+
+    <!-- =================================================
+
+         FILTER OVERLAY
+
+    ================================================== -->
+
+    <div class="filter-overlay" id="filterOverlay"></div>
+
+    <!-- =================================================
+
+         FILTER DRAWER
+
+    ================================================== -->
+
+    <aside class="filter-drawer" id="filterDrawer">
+    <form action="{% url 'all_courses' %}" method="GET">
+        <!-- =============================================
+
+             FILTER HEADER
+
+        ============================================== -->
+
+        <div class="filter-header">
+            <div class="filter-heading">
+                <h2>Filters</h2>
+
+                <span> Refine your courses </span>
+            </div>
+
+            <button type="button" class="close-filter" id="closeFilter" aria-label="Close filters">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- =============================================
+
+             FILTER BODY
+
+        ============================================== -->
+
+        <div class="filter-content">
+            <!-- =========================================
+
+                 CATEGORY
+
+            ========================================== -->
+        
+            <section class="filter-section">
+                <button type="button" class="filter-title" onclick="toggleFilter(this)">
+                    <span> Category </span>
+
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+
+                <div class="filter-options">
+                    <!-- FIRST CATEGORY -->
+
+                    {% for category in categories %}
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="category" value="{{category.name}}" {% if category.name in selected_category%} checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> {{category.name}} </span>
+                    </label>
+
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- =========================================
+
+                 PRICE
+
+            ========================================== -->
+
+            <section class="filter-section">
+                <button type="button" class="filter-title" onclick="toggleFilter(this)">
+                    <span> Price </span>
+
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+
+                <div class="filter-options">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="price" value="Free" {% if 'Free' in selected_price %}checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> Free </span>
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="price" value="Paid" {% if 'Paid' in selected_price %}checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> Paid </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- =========================================
+
+                 LEVEL
+
+            ========================================== -->
+
+            <section class="filter-section">
+                <button type="button" class="filter-title" onclick="toggleFilter(this)">
+                    <span> Level </span>
+
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+
+                <div class="filter-options">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="level" value="All Levels" {% if 'All Levels' in selected_level%} checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> All Levels </span>
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="level" value="Beginner" {% if 'Beginner' in selected_level%} checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> Beginner </span>
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="level" value="Intermediate" {% if 'Intermediate' in selected_level%} checked{% endif %}/>
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> Intermediate </span>
+                    </label>
+
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="level" value="Advanced" {% if 'Advanced' in selected_level%} checked{% endif %} />
+
+                        <span class="custom-checkbox"></span>
+
+                        <span class="filter-label"> Advanced </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- =========================================
+
+                 CREATED AT
+
+            ========================================== -->
+
+            <section class="filter-section">
+                <button type="button" class="filter-title" onclick="toggleFilter(this)">
+                    <span> Created At </span>
+
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+
+                <div class="filter-options">
+                    <label class="radio-item">
+                        <input type="radio" name="created" value="newest" {% if select_created == 'newest'%}checked{% endif %} />
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> Newest First </span>
+                    </label>
+
+                    <label class="radio-item">
+                        <input type="radio" name="created" value="oldest" {% if select_created == 'oldest'%}checked{% endif %} />
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> Oldest First </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- =========================================
+
+                 DURATION
+
+            ========================================== -->
+
+            <section class="filter-section">
+                <button type="button" class="filter-title" onclick="toggleFilter(this)">
+                    <span> Duration </span>
+
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+
+                <div class="filter-options">
+                    <label class="radio-item">
+                        <input type="radio" name="duration" value="0-60" {% if selected_duration == '0-60'%}checked{%endif%}/>
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> 0–1 Hour </span>
+                    </label>
+
+                    <label class="radio-item">
+                        <input type="radio" name="duration" value="60-180" {% if selected_duration == '60-180'%}checked{%endif%} />
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> 1–3 Hours </span>
+                    </label>
+
+                    <label class="radio-item">
+                        <input type="radio" name="duration" value="180-360" {% if selected_duration == '180-360'%}checked{%endif%} />
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> 3–6 Hours </span>
+                    </label>
+
+                    <label class="radio-item">
+                        <input type="radio" name="duration" value="360-plus" {% if selected_duration == '360-plus'%}checked{%endif%} />
+
+                        <span class="custom-radio"></span>
+
+                        <span class="filter-label"> 6+ Hours </span>
+                    </label>
+                </div>
+            </section>
+        
+        </div>
+
+        <!-- =============================================
+
+             FILTER FOOTER
+
+        ============================================== -->
+
+        <div class="filter-footer">
+            <a href="{% url 'all_courses' %}"><button type="button" class="clear-button">Clear All</button></a>
+
+            <button type="submit" class="apply-button">Apply Filters</button>
+        </div>
+    </form>
+    </aside>
+    
+    <!-- =================================================
+
+         COURSE GRID
+
+    ================================================== -->
+
+    <section class="course-grid">
+        <!-- =============================================
+
+             COURSE 1
+
+        ============================================== -->
+
+        {% for course in courses %}
+        <article class="course-card">
+                <a href="{% url 'course_details' course.slug %}">
+                <div class="course-image">
+                    {% if course.thumbnail %}
+
+                    <img src="{{course.thumbnail.url }}" alt="{{course.title}}" />
+
+                    {% else %}
+
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80"
+                        alt="Python Full Stack" />
+
+                    {% endif %}
+
+                    <button type="button" class="wishlist-button">
+                        <a href="{% url 'toggle_wishlist' course.course_id %}">
+                                {% if course.course_id in wishlist_ids %}
+                                    <i class="fa-solid fa-heart" style="color: red;"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-heart"></i>
+                                {% endif %}
+                            </a>
+                    </button>
+                </div>
+                </a>
+                <div class="course-content">
+                    <h2 class="course-title">{{course.title}}</h2>
+
+                    <p class="course-description">{{course.description}}</p>
+
+                    <p class="instructor">{{course.instructor.first_name}}</p>
+
+                    <div class="course-info">
+                        <span>
+                            <i class="fa-solid fa-signal"></i>
+
+                            {{course.level}}
+                        </span>
+
+                        <span>
+                            <i class="fa-regular fa-clock"></i>
+
+                            {{course.duration_minutes}}
+                        </span>
+                    </div>
+
+                    {% if course.discounted_price > 0 %}
+                    <strong>₹{{ course.discounted_price }}</strong>
+
+                    {% if course.price > course.discounted_price %}
+                    <del>₹{{ course.price }}</del>
+                    {% endif %} {% else %}
+                    <strong class="free-price">Free</strong>
+                    {% endif %}
+            
+            <div class="course-actions">
+                <button type="button" class="add-cart-button">
+                    <i class="fa-solid fa-cart-plus"></i>
+
+                    Add to Cart
+                </button>
+
+                <a href="{% url 'course_details' course.slug %}" class="view-course">
+                    View
+
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+            </div>
+        </article>
+
+        {% endfor %}
+    </section>
+</main>
+
+{% endblock %} {% block extra_js %}
+
+<script>
+    /* =====================================================
+         FILTER ELEMENTS
+      ===================================================== */
+
+    const openFilter = document.getElementById("openFilter");
+
+    const closeFilter = document.getElementById("closeFilter");
+
+    const filterDrawer = document.getElementById("filterDrawer");
+
+    const filterOverlay = document.getElementById("filterOverlay");
+
+    /* =====================================================
+         OPEN FILTER
+      ===================================================== */
+
+    openFilter.addEventListener("click", function () {
+        filterDrawer.classList.add("active");
+
+        filterOverlay.classList.add("active");
+
+        document.body.classList.add("filter-open");
+    });
+
+    /* =====================================================
+         CLOSE FILTER
+      ===================================================== */
+
+    closeFilter.addEventListener("click", closeFilters);
+
+    filterOverlay.addEventListener("click", closeFilters);
+
+    function closeFilters() {
+        filterDrawer.classList.remove("active");
+
+        filterOverlay.classList.remove("active");
+
+        document.body.classList.remove("filter-open");
+    }
+
+    /* =====================================================
+         ESC KEY
+      ===================================================== */
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeFilters();
+        }
+    });
+
+    /* =====================================================
+         COLLAPSE FILTER SECTIONS
+      ===================================================== */
+
+    function toggleFilter(button) {
+        const section = button.closest(".filter-section");
+
+        section.classList.toggle("collapsed");
+    }
+
+    /* =====================================================
+         SHOW MORE CATEGORIES
+      ===================================================== */
+
+    const showMoreCategories = document.getElementById("showMoreCategories");
+
+    const extraCategories = document.getElementById("extraCategories");
+
+    showMoreCategories.addEventListener("click", function () {
+        extraCategories.classList.toggle("show");
+
+        if (extraCategories.classList.contains("show")) {
+            showMoreCategories.innerHTML = `
+                <span>
+
+                    Show less
+
+                </span>
+
+
+                <i class="fa-solid fa-chevron-up"></i>
+
+                `;
+        } else {
+            showMoreCategories.innerHTML = `
+                <span>
+
+                    Show more
+
+                </span>
+
+
+                <i class="fa-solid fa-chevron-down"></i>
+
+                `;
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+My Wishlist | TRun Learning Platform
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses/wishlist.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="wishlist-page">
+
+    <!-- ==========================================
+         WISHLIST HEADER
+         ========================================== -->
+
+    <section class="wishlist-header">
+
+        <div class="wishlist-header-inner">
+
+            <div class="wishlist-heading">
+
+                <span class="wishlist-small-title">
+                    MY LEARNING LIST
+                </span>
+
+                <h1>My Wishlist</h1>
+
+                <p>
+                    Courses you've saved to learn later.
+                </p>
+
+            </div>
+
+            <div class="wishlist-header-icon">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         WISHLIST CONTENT
+         ========================================== -->
+
+    <section class="wishlist-container">
+
+
+        {% if wishlist_courses %}
+
+            <!-- Top Bar -->
+
+            <div class="wishlist-toolbar">
+
+                <div class="wishlist-result">
+
+                    <strong>
+                        {{ wishlist_courses|length }}
+                    </strong>
+
+                    {% if wishlist_courses|length == 1 %}
+                        Course in your wishlist
+                    {% else %}
+                        Courses in your wishlist
+                    {% endif %}
+
+                </div>
+
+                <div class="wishlist-sort">
+                    <form action="" method="GET">
+
+                    <label for="wishlistSort">
+                        Sort:
+                    </label>
+                    <select id="wishlistSort" name="filter_wishlist" onchange="this.form.submit()">
+
+                        <option value="latest_added" {% if selected_filter == 'latest_added' %}selected{% endif %}>
+                            Recently Added
+                        </option>
+
+                        <option value="asc_name" {% if selected_filter == 'asc_name' %}selected{% endif %}>
+                            Course Name
+                        </option>
+
+                        <option value="low_to_high" {% if selected_filter == 'low_to_high' %}selected{% endif %}>
+                            Price: Low to High
+                        </option>
+
+                        <option value="high_to_low" {% if selected_filter == 'high_to_low' %}selected{% endif %}>
+                            Price: High to Low
+                        </option>
+
+                    </select>
+                    </form>
+                </div>
+
+            </div>
+
+
+            <!-- ==========================================
+                 COURSE GRID
+                 ========================================== -->
+
+            <div class="wishlist-grid">
+
+
+                {% for wishlist in wishlist_courses %}
+
+                    {% with course=wishlist.course %}
+
+                    <article class="wishlist-card">
+
+
+                        <!-- COURSE IMAGE -->
+
+                        <div class="wishlist-card-image">
+
+                            {% if course.thumbnail %}
+
+                                <img
+                                    src="{{ course.thumbnail.url }}"
+                                    alt="{{ course.title }}"
+                                >
+
+                            {% else %}
+
+                                <img
+                                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80"
+                                    alt="{{ course.title }}"
+                                >
+
+                            {% endif %}
+
+
+                            <!-- Heart -->
+                            <a href="{% url 'toggle_wishlist' course.course_id %}">
+                            <button
+                                class="remove-wishlist"
+                                type="button"
+                                title="Remove from wishlist"
+                            >
+                                <i class="fa-solid fa-heart"></i>
+                            </button></a>
+
+
+                            <!-- Course Type -->
+
+                            {% if course.course_type == "FREE" %}
+
+                                <span class="course-badge free-badge">
+                                    FREE
+                                </span>
+
+                            {% else %}
+
+                                <span class="course-badge paid-badge">
+                                    PAID
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- COURSE BODY -->
+
+                        <div class="wishlist-card-body">
+
+
+                            <!-- Category -->
+
+                            <div class="course-category">
+                                {{ course.category.name }}
+                            </div>
+
+
+                            <!-- Title -->
+
+                            <h2 class="course-title">
+                                {{ course.title }}
+                            </h2>
+
+
+                            <!-- Description -->
+
+                            {% if course.description %}
+
+                                <p class="course-description">
+                                    {{ course.description|truncatechars:100 }}
+                                </p>
+
+                            {% else %}
+
+                                <p class="course-description">
+                                    Learn practical skills and build your
+                                    knowledge with this course.
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- Instructor -->
+
+                            <div class="course-instructor">
+
+                                <div class="instructor-avatar">
+
+                                    {% if course.instructor %}
+
+                                        {{ course.instructor.first_name|first|upper }}
+
+                                    {% else %}
+
+                                        T
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="instructor-info">
+
+                                    <span>
+                                        Instructor
+                                    </span>
+
+                                    <strong>
+
+                                        {% if course.instructor %}
+
+                                            {{ course.instructor.first_name }}
+                                            {{ course.instructor.last_name }}
+
+                                        {% else %}
+
+                                            TRun Instructor
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Course Meta -->
+
+                            <div class="course-meta">
+
+                                <span>
+                                    <i class="fa-regular fa-clock"></i>
+                                    {{ course.duration_minutes }} min
+                                </span>
+
+                                <span>
+                                    <i class="fa-solid fa-signal"></i>
+                                    {{ course.get_level_display }}
+                                </span>
+
+                            </div>
+
+
+                            <!-- PRICE -->
+
+                            <div class="course-price-section">
+
+                                {% if course.course_type == "FREE" %}
+
+                                    <span class="free-price">
+                                        Free
+                                    </span>
+
+                                {% elif course.discounted_price > 0 %}
+
+                                    <strong class="current-price">
+                                        ₹{{ course.discounted_price }}
+                                    </strong>
+
+                                    {% if course.price > course.discounted_price %}
+
+                                        <del>
+                                            ₹{{ course.price }}
+                                        </del>
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    <strong class="current-price">
+                                        ₹{{ course.price }}
+                                    </strong>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- ACTIONS -->
+
+                            <div class="course-actions">
+
+                                <a
+                                    href="#"
+                                    class="view-course"
+                                >
+                                    View Course
+                                </a>
+
+                                <button
+                                    type="button"
+                                    class="cart-button"
+                                    title="Add to cart"
+                                >
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                </button>
+
+                            </div>
+
+
+                    </div>
+
+                    </article>
+
+                    {% endwith %}
+
+                {% endfor %}
+
+
+            </div>
+
+
+        {% else %}
+
+
+            <!-- ==========================================
+                 EMPTY WISHLIST
+                 ========================================== -->
+
+            <div class="empty-wishlist">
+
+                <div class="empty-heart">
+
+                    <i class="fa-regular fa-heart"></i>
+
+                </div>
+
+                <h2>
+                    Your wishlist is empty
+                </h2>
+
+                <p>
+                    Save courses you're interested in and
+                    come back whenever you're ready to learn.
+                </p>
+
+                <a
+                    href="{% url 'all_courses' %}"
+                    class="explore-button"
+                >
+                    <i class="fa-solid fa-compass"></i>
+                    Explore Courses
+                </a>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+</main>
+
+{% endblock %}
