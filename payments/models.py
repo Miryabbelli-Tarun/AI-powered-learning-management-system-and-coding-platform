@@ -73,6 +73,41 @@ class Orders(models.Model):
     def __str__(self):
         return f"Order {self.order_id} - {self.student.email}"
 
+class OrderItem(models.Model):
+
+    order_item_id = models.BigAutoField(
+        primary_key=True
+    )
+
+    order = models.ForeignKey(
+        Orders,
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="order_items"
+    )
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        db_table = "order_items"
+
+    def __str__(self):
+        return f"{self.order.order_id} - {self.course.title}"
+
+
+
 
 class Payments(models.Model):
 

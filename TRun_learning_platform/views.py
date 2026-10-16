@@ -4,7 +4,7 @@ from banners.models import Banner
 from django.db.models import Q
 from django.utils import timezone
 
-from courses.models import Category, Course, Wishlist
+from courses.models import Cart, Category, Course, Wishlist
 
 
 def home(request):
@@ -21,9 +21,11 @@ def home(request):
     recomended_courses=courses.order_by('?')[0:4]
 
     #get the wishlist items
-    
-    wishlist_courses=Wishlist.objects.filter(user_id=request.user.user_id)
-    wishlist_ids=wishlist_courses.values_list('course_id', flat=True)
+    wishlist_courses=[]
+    wishlist_ids=[]
+    if request.user.is_authenticated:
+        wishlist_courses=Wishlist.objects.filter(user_id=request.user.user_id)
+        wishlist_ids=wishlist_courses.values_list('course_id', flat=True)
 
     context={
         'banners':banners,
@@ -32,6 +34,6 @@ def home(request):
         'courses':courses[0:10],
         'recomended_courses':recomended_courses,
         'wishlist_course':wishlist_courses,
-        'wishlist_ids':wishlist_ids
+        'wishlist_ids':wishlist_ids,
     }
     return render(request,'home.html',context)

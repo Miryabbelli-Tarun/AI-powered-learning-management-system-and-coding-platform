@@ -12,7 +12,7 @@ urlpatterns = [
     ),
 
     path(
-        "create-order/<int:course_id>/",
+        "create-order/",
         views.create_razorpay_order,
         name="create_razorpay_order"
     ),

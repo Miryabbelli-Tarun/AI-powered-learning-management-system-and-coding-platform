@@ -26,17 +26,18 @@
         <div class="course-container">
 
             <!-- LEFT -->
+
             <div class="hero-information">
 
                 <div class="course-breadcrumb">
 
-                    <a href="#">
+                    <a href="{% url 'all_courses' %}">
                         Courses
                     </a>
 
                     <span>/</span>
 
-                    <a href="#">
+                    <a href="{% url 'all_courses' %}">
                         {{ course.category.name }}
                     </a>
 
@@ -79,9 +80,9 @@
 
                 {% if course.description %}
 
-                <p class="hero-description">
-                    {{ course.description }}
-                </p>
+                    <p class="hero-description">
+                        {{ course.description }}
+                    </p>
 
                 {% endif %}
 
@@ -90,31 +91,29 @@
 
                     {% if course.instructor %}
 
-                    <div class="hero-meta-item">
+                        <div class="hero-meta-item">
 
-                        <div class="meta-symbol">
-                            IN
+                            <div class="meta-symbol">
+                                IN
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    Instructor
+                                </span>
+
+                                <strong>
+                                    {{ course.instructor.first_name }}
+
+                                    {% if course.instructor.last_name %}
+                                        {{ course.instructor.last_name }}
+                                    {% endif %}
+                                </strong>
+
+                            </div>
+
                         </div>
-
-                        <div>
-
-                            <span>
-                                Instructor
-                            </span>
-
-                            <strong>
-
-                                {{ course.instructor.first_name }}
-
-                                {% if course.instructor.last_name %}
-                                    {{ course.instructor.last_name }}
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
 
                     {% endif %}
 
@@ -175,25 +174,25 @@
 
                     {% if course.thumbnail %}
 
-                    <img
-                        src="{{ course.thumbnail.url }}"
-                        alt="{{ course.title }}"
-                        class="course-thumbnail"
-                    >
+                        <img
+                            src="{{ course.thumbnail.url }}"
+                            alt="{{ course.title }}"
+                            class="course-thumbnail"
+                        >
 
                     {% else %}
 
-                    <div class="thumbnail-placeholder">
+                        <div class="thumbnail-placeholder">
 
-                        <span>
-                            TRun
-                        </span>
+                            <span>
+                                TRun
+                            </span>
 
-                        <strong>
-                            {{ course.title }}
-                        </strong>
+                            <strong>
+                                {{ course.title }}
+                            </strong>
 
-                    </div>
+                        </div>
 
                     {% endif %}
 
@@ -243,7 +242,6 @@
         </div>
 
     </section>
-
 
 
     <!-- =====================================================
@@ -348,7 +346,6 @@
     </section>
 
 
-
     <!-- =====================================================
          MAIN CONTENT
     ====================================================== -->
@@ -394,20 +391,19 @@
 
                     {% if course.description %}
 
-                    <div class="about-card">
+                        <div class="about-card">
 
-                        <div class="about-line"></div>
+                            <div class="about-line"></div>
 
-                        <p>
-                            {{ course.description }}
-                        </p>
+                            <p>
+                                {{ course.description }}
+                            </p>
 
-                    </div>
+                        </div>
 
                     {% endif %}
 
                 </section>
-
 
 
                 <!-- =============================================
@@ -439,166 +435,328 @@
 
                     <div class="learning-roadmap">
 
-                        {% for module in course.modules.all %}
+                        {% if not enroll %}
 
-                        <div class="roadmap-module">
+                         {% for module in course.modules.all %}
 
-                            <div class="roadmap-line">
+                            {% if forloop.first%}
 
-                                <div class="roadmap-dot">
-                                    {{ forloop.counter }}
-                                </div>
+                            <div class="roadmap-module">
 
-                                {% if not forloop.last %}
-                                <div class="roadmap-connector"></div>
-                                {% endif %}
+                                <div class="roadmap-line">
 
-                            </div>
-
-
-                            <div class="module-card">
-
-                                <div class="module-top">
-
-                                    <div>
-
-                                        <span class="module-label">
-                                            MODULE {{ forloop.counter }}
-                                        </span>
-
-                                        <h3>
-                                            {{ module.title }}
-                                        </h3>
-
+                                    <div class="roadmap-dot">
+                                        {{ forloop.counter }}
                                     </div>
 
-
-                                    <div class="module-count">
-
-                                        <strong>
-                                            {{ module.lessons.count }}
-                                        </strong>
-
-                                        <span>
-                                            lesson{{ module.lessons.count|pluralize }}
-                                        </span>
-
-                                    </div>
+                                    {% if not forloop.last %}
+                                        <div class="roadmap-connector"></div>
+                                    {% endif %}
 
                                 </div>
 
 
-                                {% if module.description %}
+                                <div class="module-card">
 
-                                <p class="module-description">
-                                    {{ module.description }}
-                                </p>
+                                    <div class="module-top">
 
-                                {% endif %}
+                                        <div>
 
+                                            <span class="module-label">
+                                                MODULE {{ forloop.counter }}
+                                            </span>
 
-                                <div class="module-lessons">
-
-                                    {% for lesson in module.lessons.all %}
-
-                                    <div class="lesson-row">
-
-                                        <div class="lesson-icon">
-
-                                            {% if lesson.lesson_type == "VIDEO" %}
-                                                ▶
-                                            {% else %}
-                                                ≡
-                                            {% endif %}
+                                            <h3>
+                                                {{ module.title }}
+                                            </h3>
 
                                         </div>
 
 
-                                        <div class="lesson-data">
+                                        <div class="module-count">
 
                                             <strong>
-                                                {{ lesson.title }}
+                                                {{ module.lessons.count }}
                                             </strong>
 
-                                            {% if lesson.description %}
-
                                             <span>
-                                                {{ lesson.description }}
+                                                lesson{{ module.lessons.count|pluralize }}
                                             </span>
-
-                                            {% endif %}
-
-                                        </div>
-
-
-                                        <div class="lesson-details">
-
-                                            {% if lesson.lesson_type == "VIDEO" %}
-
-                                            <span class="lesson-tag video">
-                                                VIDEO
-                                            </span>
-
-                                            {% else %}
-
-                                            <span class="lesson-tag text">
-                                                TEXT
-                                            </span>
-
-                                            {% endif %}
-
-
-                                            {% if lesson.duration_minutes %}
-
-                                            <span class="lesson-time">
-                                                {{ lesson.duration_minutes }} min
-                                            </span>
-
-                                            {% endif %}
 
                                         </div>
 
                                     </div>
 
-                                    {% empty %}
 
-                                    <div class="no-lessons">
-                                        Lessons will be added soon.
+                                    {% if module.description %}
+
+                                        <p class="module-description">
+                                            {{ module.description }}
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <div class="module-lessons">
+
+                                        {% for lesson in module.lessons.all %}
+
+                                            <div class="lesson-row">
+
+                                                <div class="lesson-icon">
+
+                                                    {% if lesson.lesson_type == "VIDEO" %}
+                                                        ▶
+                                                    {% else %}
+                                                        ≡
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <div class="lesson-data">
+
+                                                    <strong>
+                                                        {{ lesson.title }}
+                                                    </strong>
+
+                                                    {% if lesson.description %}
+
+                                                        <span>
+                                                            {{ lesson.description }}
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <div class="lesson-details">
+
+                                                    {% if lesson.lesson_type == "VIDEO" %}
+
+                                                        <span class="lesson-tag video">
+                                                            VIDEO
+                                                        </span>
+
+                                                    {% else %}
+
+                                                        <span class="lesson-tag text">
+                                                            TEXT
+                                                        </span>
+
+                                                    {% endif %}
+
+
+                                                    {% if lesson.duration_minutes %}
+
+                                                        <span class="lesson-time">
+                                                            {{ lesson.duration_minutes }} min
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                            </div>
+                                            
+                                        {% empty %}
+
+                                            <div class="no-lessons">
+                                                Lessons will be added soon.
+                                            </div>
+
+                                        {% endfor %}
+
                                     </div>
-
-                                    {% endfor %}
 
                                 </div>
 
                             </div>
+                            {% endif %}
+                        {% empty %}
 
-                        </div>
+                            <div class="empty-roadmap">
+
+                                <div class="empty-roadmap-icon">
+                                    +
+                                </div>
+
+                                <h3>
+                                    Course roadmap is being prepared
+                                </h3>
+
+                                <p>
+                                    Modules and lessons will appear here once
+                                    they are added by the instructor.
+                                </p>
+
+                            </div>
+                            {% endfor %}
+
+                        {% else %}
+
+                        {% for module in course.modules.all %}
+
+                        
+
+                            <div class="roadmap-module">
+
+                                <div class="roadmap-line">
+
+                                    <div class="roadmap-dot">
+                                        {{ forloop.counter }}
+                                    </div>
+
+                                    {% if not forloop.last %}
+                                        <div class="roadmap-connector"></div>
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="module-card">
+
+                                    <div class="module-top">
+
+                                        <div>
+
+                                            <span class="module-label">
+                                                MODULE {{ forloop.counter }}
+                                            </span>
+
+                                            <h3>
+                                                {{ module.title }}
+                                            </h3>
+
+                                        </div>
+
+
+                                        <div class="module-count">
+
+                                            <strong>
+                                                {{ module.lessons.count }}
+                                            </strong>
+
+                                            <span>
+                                                lesson{{ module.lessons.count|pluralize }}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {% if module.description %}
+
+                                        <p class="module-description">
+                                            {{ module.description }}
+                                        </p>
+
+                                    {% endif %}
+
+
+                                    <div class="module-lessons">
+
+                                        {% for lesson in module.lessons.all %}
+
+                                            <div class="lesson-row">
+
+                                                <div class="lesson-icon">
+
+                                                    {% if lesson.lesson_type == "VIDEO" %}
+                                                        ▶
+                                                    {% else %}
+                                                        ≡
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <div class="lesson-data">
+
+                                                    <strong>
+                                                        {{ lesson.title }}
+                                                    </strong>
+
+                                                    {% if lesson.description %}
+
+                                                        <span>
+                                                            {{ lesson.description }}
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <div class="lesson-details">
+
+                                                    {% if lesson.lesson_type == "VIDEO" %}
+
+                                                        <span class="lesson-tag video">
+                                                            VIDEO
+                                                        </span>
+
+                                                    {% else %}
+
+                                                        <span class="lesson-tag text">
+                                                            TEXT
+                                                        </span>
+
+                                                    {% endif %}
+
+
+                                                    {% if lesson.duration_minutes %}
+
+                                                        <span class="lesson-time">
+                                                            {{ lesson.duration_minutes }} min
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                            </div>
+
+                                        {% empty %}
+
+                                            <div class="no-lessons">
+                                                Lessons will be added soon.
+                                            </div>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         {% empty %}
 
-                        <div class="empty-roadmap">
+                            <div class="empty-roadmap">
 
-                            <div class="empty-roadmap-icon">
-                                +
+                                <div class="empty-roadmap-icon">
+                                    +
+                                </div>
+
+                                <h3>
+                                    Course roadmap is being prepared
+                                </h3>
+
+                                <p>
+                                    Modules and lessons will appear here once
+                                    they are added by the instructor.
+                                </p>
+
                             </div>
 
-                            <h3>
-                                Course roadmap is being prepared
-                            </h3>
-
-                            <p>
-                                Modules and lessons will appear here once
-                                they are added by the instructor.
-                            </p>
-
-                        </div>
-
                         {% endfor %}
-
+                        {% endif %}
                     </div>
 
                 </section>
-
 
 
                 <!-- =============================================
@@ -636,59 +794,82 @@
 
                                 {% for material in lesson.study_materials.all %}
 
-                                <div class="resource-card">
+                                    <div class="resource-card">
 
-                                    <div class="resource-type">
+                                        <div class="resource-type">
 
-                                        {% if material.material_type == "PDF" %}
-                                            PDF
-                                        {% elif material.material_type == "DOCUMENT" %}
-                                            DOC
-                                        {% elif material.material_type == "ZIP" %}
-                                            ZIP
-                                        {% else %}
-                                            FILE
+                                            {% if material.material_type == "PDF" %}
+                                                PDF
+                                            {% elif material.material_type == "DOCUMENT" %}
+                                                DOC
+                                            {% elif material.material_type == "ZIP" %}
+                                                ZIP
+                                            {% else %}
+                                                FILE
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="resource-info">
+
+                                            <h3>
+                                                {{ material.title }}
+                                            </h3>
+
+                                            <span>
+                                                {{ material.material_type }}
+                                            </span>
+
+                                        </div>
+
+
+                                        {% if material.material %}
+
+                                            <a
+                                                
+                                                {% if request.user.is_authenticated %}
+                                                    {% if enroll %}
+                                                        href="{{ material.material.url }}"
+                                                    {% endif %}
+                                                {% else %}
+                                                    href="{% url 'login' %}?next={{ request.path }}"
+                                                {% endif %}
+                                                target="_blank"
+                                                class="resource-button"
+                                            >
+
+                                                {% if request.user.is_authenticated %}
+                                                    {% if enroll %}
+                                                      Open
+                                                    {% else %}
+                                                        enroll
+                                                    {% endif %}
+                                                {% else %}
+                                                    Login
+                                                {% endif %}
+
+                                            </a>
+
+                                        {% elif material.file_url %}
+
+                                            <a
+                                                href="{{ material.file_url }}"
+                                                target="_blank"
+                                                class="resource-button"
+                                            >
+
+                                                {% if request.user.is_authenticated %}
+                                                    Open
+                                                {% else %}
+                                                    Login
+                                                {% endif %}
+
+                                            </a>
+
                                         {% endif %}
 
                                     </div>
-
-
-                                    <div class="resource-info">
-
-                                        <h3>
-                                            {{ material.title }}
-                                        </h3>
-
-                                        <span>
-                                            {{ material.material_type }}
-                                        </span>
-
-                                    </div>
-
-
-                                    {% if material.material %}
-
-                                    <a
-                                        {% if request.user.is_authenticated %} href="{{ material.material.url }}"{% else %} href="{% url 'login'  %}" {% endif %}
-                                        target="_blank"
-                                        class="resource-button"
-                                    >
-                                        {% if request.user.is_authenticated %}Open{% else %}Login{% endif %}
-                                    </a>
-
-                                    {% elif material.file_url %}
-
-                                    <a
-                                        href="{{ material.file_url }}"
-                                        target="_blank"
-                                        class="resource-button"
-                                    >
-                                        {% if request.user.is_authenticated %}Open{% else %}login {% endif %}
-                                    </a>
-
-                                    {% endif %}
-
-                                </div>
 
                                 {% endfor %}
 
@@ -696,13 +877,13 @@
 
                         {% empty %}
 
-                        <div class="no-resources">
+                            <div class="no-resources">
 
-                            <span>
-                                No materials available yet.
-                            </span>
+                                <span>
+                                    No materials available yet.
+                                </span>
 
-                        </div>
+                            </div>
 
                         {% endfor %}
 
@@ -711,105 +892,103 @@
                 </section>
 
 
-
                 <!-- =============================================
                      INSTRUCTOR
                 ============================================== -->
 
                 {% if course.instructor %}
 
-                <section class="content-block">
+                    <section class="content-block">
 
-                    <div class="block-heading">
+                        <div class="block-heading">
 
-                        <div class="heading-mark">
-                            04
-                        </div>
+                            <div class="heading-mark">
+                                04
+                            </div>
 
-                        <div>
-
-                            <span>
-                                COURSE INSTRUCTOR
-                            </span>
-
-                            <h2>
-                                Learn from your instructor
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="instructor-section">
-
-                        <div class="instructor-picture">
-
-                            {% if course.instructor.profile_image %}
-
-                            <img
-                                src="{{ course.instructor.profile_image }}"
-                                alt="{{ course.instructor.first_name }}"
-                            >
-
-                            {% else %}
-
-                            <span>
-                                {{ course.instructor.first_name|first|upper }}
-                            </span>
-
-                            {% endif %}
-
-                        </div>
-
-
-                        <div class="instructor-info">
-
-                            <span class="instructor-small-title">
-                                INSTRUCTOR
-                            </span>
-
-                            <h3>
-
-                                {{ course.instructor.first_name }}
-
-                                {% if course.instructor.last_name %}
-                                    {{ course.instructor.last_name }}
-                                {% endif %}
-
-                            </h3>
-
-
-                            <p>
-                                Course instructor on the TRun Learning
-                                Platform.
-                            </p>
-
-
-                            <div class="instructor-contact">
+                            <div>
 
                                 <span>
-                                    {{ course.instructor.email }}
+                                    COURSE INSTRUCTOR
                                 </span>
 
-                                {% if course.instructor.phone %}
-
-                                <span>
-                                    {{ course.instructor.phone }}
-                                </span>
-
-                                {% endif %}
+                                <h2>
+                                    Learn from your instructor
+                                </h2>
 
                             </div>
 
                         </div>
 
-                    </div>
 
-                </section>
+                        <div class="instructor-section">
+
+                            <div class="instructor-picture">
+
+                                {% if course.instructor.profile_image %}
+
+                                    <img
+                                        src="{{ course.instructor.profile_image }}"
+                                        alt="{{ course.instructor.first_name }}"
+                                    >
+
+                                {% else %}
+
+                                    <span>
+                                        {{ course.instructor.first_name|first|upper }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="instructor-info">
+
+                                <span class="instructor-small-title">
+                                    INSTRUCTOR
+                                </span>
+
+                                <h3>
+
+                                    {{ course.instructor.first_name }}
+
+                                    {% if course.instructor.last_name %}
+                                        {{ course.instructor.last_name }}
+                                    {% endif %}
+
+                                </h3>
+
+
+                                <p>
+                                    Course instructor on the TRun Learning
+                                    Platform.
+                                </p>
+
+
+                                <div class="instructor-contact">
+
+                                    <span>
+                                        {{ course.instructor.email }}
+                                    </span>
+
+                                    {% if course.instructor.phone %}
+
+                                        <span>
+                                            {{ course.instructor.phone }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
 
                 {% endif %}
-
 
 
                 <!-- =============================================
@@ -839,98 +1018,126 @@
                     </div>
 
 
-                    <!-- --------user comment section------------- -->
-                     {% if request.user %}
-                    <div>
-                        <form action="{% url 'comment' course.slug %}" method="POST">
-                            {% csrf_token %}
-                            <input type="text" name="comment" id="" placeholder="Enter your comment" required>
-                            <input type="number" name="rating" id="" placeholder="Enter rating upto 5 stars" required min="0" max="5">
-                            <button type="submit">Comment</button>
-                        </form>
+                    <!-- USER COMMENT SECTION -->
 
-                    </div>
+                    {% if request.user.is_authenticated and enroll %}
+
+                        <div>
+
+                            <form
+                                action="{% url 'comment' course.slug %}"
+                                method="POST"
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="text"
+                                    name="comment"
+                                    placeholder="Enter your comment"
+                                    required
+                                >
+
+                                <input
+                                    type="number"
+                                    name="rating"
+                                    placeholder="Enter rating upto 5 stars"
+                                    required
+                                    min="0"
+                                    max="5"
+                                >
+
+                                <button type="submit">
+                                    Comment
+                                </button>
+
+                            </form>
+
+                        </div>
+
                     {% endif %}
-                    <!-- -------------------------------------------- -->
+
 
                     <div class="reviews-grid">
 
                         {% for review in course.CourseRating.all %}
 
-                        <article class="review-card">
+                            <article class="review-card">
 
-                            <div class="review-header">
+                                <div class="review-header">
 
-                                <div class="review-user">
+                                    <div class="review-user">
 
-                                    <div class="review-avatar">
-                                        {{ review.user.first_name|first|upper }}
+                                        <div class="review-avatar">
+                                            {{ review.user.first_name|first|upper }}
+                                        </div>
+
+                                        <div>
+
+                                            <h3>
+
+                                                {{ review.user.first_name }}
+
+                                                {% if review.user.last_name %}
+                                                    {{ review.user.last_name }}
+                                                {% endif %}
+
+                                            </h3>
+
+                                            <span>
+                                                {{ review.created_at|date:"d M Y" }}
+                                            </span>
+
+                                        </div>
+
                                     </div>
 
-                                    <div>
 
-                                        <h3>
-                                            {{ review.user.first_name }}
+                                    <div class="review-stars">
 
-                                            {% if review.user.last_name %}
-                                                {{ review.user.last_name }}
+                                        {% for star in "12345" %}
+
+                                            {% if forloop.counter <= review.rating %}
+                                                ★
+                                            {% else %}
+                                                ☆
                                             {% endif %}
-                                        </h3>
 
-                                        <span>
-                                            {{ review.created_at|date:"d M Y" }}
-                                        </span>
+                                        {% endfor %}
 
                                     </div>
 
                                 </div>
 
 
-                                <div class="review-stars">
+                                {% if review.comment %}
 
-                                    {% for star in "12345" %}
+                                    <p class="review-text">
+                                        {{ review.comment }}
+                                    </p>
 
-                                        {% if forloop.counter <= review.rating %}
-                                            ★
-                                        {% else %}
-                                            ☆
-                                        {% endif %}
+                                {% endif %}
 
-                                    {% endfor %}
-
-                                </div>
-
-                            </div>
-
-
-                            {% if review.comment %}
-
-                            <p class="review-text">
-                                {{ review.comment }}
-                            </p>
-
-                            {% endif %}
-
-                        </article>
+                            </article>
 
                         {% empty %}
 
-                        <div class="no-reviews">
+                            <div class="no-reviews">
 
-                            <div>
-                                ★
+                                <div>
+                                    ★
+                                </div>
+
+                                <h3>
+                                    No learner reviews yet
+                                </h3>
+
+                                <p>
+                                    Reviews will appear here after learners
+                                    share their experience.
+                                </p>
+
                             </div>
-
-                            <h3>
-                                No learner reviews yet
-                            </h3>
-
-                            <p>
-                                Reviews will appear here after learners
-                                share their experience.
-                            </p>
-
-                        </div>
 
                         {% endfor %}
 
@@ -939,7 +1146,6 @@
                 </section>
 
             </div>
-
 
 
             <!-- =================================================
@@ -967,16 +1173,16 @@
 
                         {% if course.thumbnail %}
 
-                        <img
-                            src="{{ course.thumbnail.url }}"
-                            alt="{{ course.title }}"
-                        >
+                            <img
+                                src="{{ course.thumbnail.url }}"
+                                alt="{{ course.title }}"
+                            >
 
                         {% else %}
 
-                        <div class="small-thumbnail-placeholder">
-                            TRun
-                        </div>
+                            <div class="small-thumbnail-placeholder">
+                                TRun
+                            </div>
 
                         {% endif %}
 
@@ -1002,23 +1208,23 @@
 
                                 {% if course.discounted_price > 0 %}
 
-                                <strong>
-                                    ₹{{ course.discounted_price }}
-                                </strong>
+                                    <strong>
+                                        ₹{{ course.discounted_price }}
+                                    </strong>
 
-                                {% if course.price > course.discounted_price %}
+                                    {% if course.price > course.discounted_price %}
 
-                                <del>
-                                    ₹{{ course.price }}
-                                </del>
+                                        <del>
+                                            ₹{{ course.price }}
+                                        </del>
 
-                                {% endif %}
+                                    {% endif %}
 
                                 {% else %}
 
-                                <strong>
-                                    ₹{{ course.price }}
-                                </strong>
+                                    <strong>
+                                        ₹{{ course.price }}
+                                    </strong>
 
                                 {% endif %}
 
@@ -1083,44 +1289,92 @@
                         </div>
 
 
+                        <!-- =====================================
+                             ENROLL / PAYMENT / CART
+                        ====================================== -->
+
                         {% if user.is_authenticated %}
+                            {% if not enroll %}
+                            {% if course.course_type == "FREE" %}
 
-                        {% if course.course_type == "FREE" %}
+                                <button
+                                    type="button"
+                                    class="enroll-button"
+                                    onclick="enrollFreeCourse({{ course.course_id }}, this)"
+                                >
+                                    Enroll for Free
+                                </button>
 
-                            <button
-                                type="button"
-                                class="enroll-button"
-                                onclick="enrollFreeCourse({{course.course_id}})"
-                            >
-                                Enroll for Free
-                            </button>
+                                <form
+                                    method="POST"
+                                    action="{% url 'add_to_cart' course.course_id %}"
+                                    style="margin-top: 10px;"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="enroll-button"
+                                    >
+                                        Add to Cart
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <button
+                                    type="button"
+                                    class="enroll-button"
+                                    onclick="startPaidEnrollment({{ course.course_id }}, this)"
+                                >
+                                    Enroll Now
+                                </button>
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'add_to_cart' course.course_id %}"
+                                    style="margin-top: 10px;"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="enroll-button"
+                                    >
+                                        Add to Cart
+                                    </button>
+
+                                </form>
+                            {% endif %}
+                            {% else %}
+                                <button
+                                        type="submit"
+                                        class="enroll-button"
+                                    >
+                                        start learner
+                                    </button>
+
+                            {% endif %}
+
+                            
 
                         {% else %}
 
-                            <button
-                                type="button"
+                            <a
+                                href="{% url 'login' %}?next={{ request.path }}"
                                 class="enroll-button"
-                                onclick="startPaidEnrollment({{ course.course_id }})"
                             >
-                                Enroll Now
-                            </button>
+                                Login to Enroll
+                            </a>
 
                         {% endif %}
 
-                    {% else %}
 
                         <a
-                            href="/accounts/login/?next={{ request.path }}"
-                            class="enroll-button"
-                        >
-                            Login to Enroll
-                        </a>
-
-                    {% endif %}
-
-
-                        <a
-                            href="#"
+                            href="{% url 'toggle_wishlist' course.course_id %}"
                             class="wishlist-link"
                         >
                             ♡
@@ -1141,7 +1395,6 @@
         </div>
 
     </main>
-
 
 
     <!-- =====================================================
@@ -1167,17 +1420,56 @@
                 knowledge one step at a time.
             </p>
 
-            <a href="#">
-                {% if course.course_type == "FREE" %}
-                    Start Learning
+
+            {% if user.is_authenticated %}
+               {% if not enroll %}
+                <a
+                    href="#"
+                    onclick="{% if course.course_type == 'FREE' %}enrollFreeCourse({{ course.course_id }}, this);{% else %}startPaidEnrollment({{ course.course_id }}, this);{% endif %} return false;"
+                >
+
+                    {% if course.course_type == "FREE" %}
+                        Start Learning
+                    {% else %}
+                        Enroll in Course
+                    {% endif %}
+
+                    <span>
+                        →
+                    </span>
+
+                </a>
                 {% else %}
-                    Enroll in Course
+                    <a
+                    href="#"
+                >
+                        Start Learning
+                    <span>
+                        →
+                    </span>
+                </a>
+                    
                 {% endif %}
 
-                <span>
-                    →
-                </span>
-            </a>
+            {% else %}
+
+                <a
+                    href="{% url 'login' %}?next={{ request.path }}"
+                >
+
+                    {% if course.course_type == "FREE" %}
+                        Start Learning
+                    {% else %}
+                        Enroll in Course
+                    {% endif %}
+
+                    <span>
+                        →
+                    </span>
+
+                </a>
+
+            {% endif %}
 
         </div>
 
@@ -1186,6 +1478,7 @@
 </div>
 
 {% endblock %}
+
 
 {% block extra_js %}
 
@@ -1206,10 +1499,8 @@ function getCookie(name) {
             const cookie = cookies[i].trim();
 
             if (
-                cookie.substring(
-                    0,
-                    name.length + 1
-                ) === (name + "=")
+                cookie.substring(0, name.length + 1) ===
+                (name + "=")
             ) {
 
                 cookieValue = decodeURIComponent(
@@ -1228,13 +1519,20 @@ function getCookie(name) {
 const csrftoken = getCookie("csrftoken");
 
 
-async function enrollFreeCourse(courseId) {
 
-    const button = event.target;
+/* =========================================================
+   FREE COURSE ENROLLMENT
+========================================================= */
 
-    button.disabled = true;
+async function enrollFreeCourse(courseId, button = null) {
 
-    button.innerText = "Enrolling...";
+    if (button) {
+
+        button.disabled = true;
+        button.innerText = "Enrolling...";
+
+    }
+
 
     try {
 
@@ -1245,7 +1543,6 @@ async function enrollFreeCourse(courseId) {
 
                 headers: {
                     "X-CSRFToken": csrftoken,
-
                     "Content-Type":
                         "application/x-www-form-urlencoded"
                 },
@@ -1254,11 +1551,16 @@ async function enrollFreeCourse(courseId) {
             }
         );
 
+
         const data = await response.json();
+
 
         if (data.success) {
 
-            alert(data.message);
+            alert(
+                data.message ||
+                "You are enrolled successfully."
+            );
 
             window.location.reload();
 
@@ -1269,133 +1571,453 @@ async function enrollFreeCourse(courseId) {
                 "Unable to enroll."
             );
 
-            button.disabled = false;
 
-            button.innerText = "Enroll for Free";
+            if (button) {
+
+                button.disabled = false;
+                button.innerText = "Enroll for Free";
+
+            }
+
         }
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Free enrollment error:",
+            error
+        );
+
 
         alert(
             "Something went wrong. Please try again."
         );
 
-        button.disabled = false;
 
-        button.innerText = "Enroll for Free";
+        if (button) {
+
+            button.disabled = false;
+            button.innerText = "Enroll for Free";
+
+        }
+
     }
+
 }
 
 
-async function startPaidEnrollment(courseId) {
+
+/* =========================================================
+   PAID COURSE - CREATE RAZORPAY ORDER
+========================================================= */
+async function startPaidEnrollment(courseId, button) {
+
+    if (!courseId) {
+        alert("Course ID is missing.");
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = "Processing...";
+    }
 
     try {
 
-        const response = await fetch(
-            `/payments/create-order/${courseId}/`,
+        // ====================================================
+        // STEP 1: CREATE LOCAL + RAZORPAY ORDER
+        // ====================================================
+
+        const csrfToken = document.querySelector(
+            '[name=csrfmiddlewaretoken]'
+        )?.value;
+
+        if (!csrfToken) {
+            throw new Error("CSRF token not found.");
+        }
+
+        const formData = new FormData();
+
+        formData.append("course_id", courseId);
+
+        const orderResponse = await fetch(
+            "{% url 'create_razorpay_order' %}",
             {
                 method: "POST",
-
                 headers: {
-                    "X-CSRFToken": csrftoken,
-
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
+                    "X-CSRFToken": csrfToken
                 },
-
-                credentials: "same-origin"
+                body: formData
             }
         );
 
-        const data = await response.json();
+        const orderData = await orderResponse.json();
 
-        if (!data.success) {
+        console.log(
+            "Create Order Response:",
+            orderData
+        );
 
-            alert(
-                data.message ||
+        if (!orderResponse.ok || !orderData.success) {
+
+            throw new Error(
+                orderData.message ||
                 "Unable to create payment order."
             );
-
-            return;
         }
 
-        if (data.already_enrolled) {
+        // ====================================================
+        // IMPORTANT
+        // ====================================================
 
-            alert(
-                "You are already enrolled in this course."
+        const razorpayOrderId =
+            orderData.razorpay_order_id;
+
+        const localOrderId =
+            orderData.local_order_id;
+
+        console.log(
+            "Razorpay Order ID:",
+            razorpayOrderId
+        );
+
+        console.log(
+            "Local Order ID:",
+            localOrderId
+        );
+
+        // Make absolutely sure local_order_id exists
+        if (
+            localOrderId === undefined ||
+            localOrderId === null ||
+            localOrderId === "" ||
+            localOrderId === "undefined"
+        ) {
+
+            throw new Error(
+                "Local order ID was not returned by the server."
             );
-
-            return;
         }
 
-        openRazorpayCheckout(data);
+        // ====================================================
+        // STEP 2: RAZORPAY CHECKOUT OPTIONS
+        // ====================================================
+
+        const options = {
+
+            key: orderData.key_id,
+
+            amount: orderData.amount,
+
+            currency: orderData.currency,
+
+            name: "TRun Learning Platform",
+
+            description: "Course Enrollment",
+
+            order_id: razorpayOrderId,
+
+            prefill: {
+                name: orderData.student_name || "",
+                email: orderData.student_email || "",
+                contact: orderData.student_phone || ""
+            },
+
+            theme: {
+                color: "#4f46e5"
+            },
+
+            // ==================================================
+            // PAYMENT SUCCESS
+            // ==================================================
+
+            handler: async function (response) {
+
+                console.log(
+                    "Razorpay Payment Response:",
+                    response
+                );
+
+                console.log(
+                    "Sending Local Order ID:",
+                    localOrderId
+                );
+
+                try {
+
+                    // ==========================================
+                    // STEP 3: VERIFY PAYMENT
+                    // ==========================================
+
+                    const verifyData = new FormData();
+
+                    verifyData.append(
+                        "razorpay_payment_id",
+                        response.razorpay_payment_id
+                    );
+
+                    verifyData.append(
+                        "razorpay_order_id",
+                        response.razorpay_order_id
+                    );
+
+                    verifyData.append(
+                        "razorpay_signature",
+                        response.razorpay_signature
+                    );
+
+                    // THIS IS THE IMPORTANT PART
+                    verifyData.append(
+                        "local_order_id",
+                        localOrderId
+                    );
+
+                    console.log(
+                        "Verification Data:",
+                        {
+                            razorpay_payment_id:
+                                response.razorpay_payment_id,
+
+                            razorpay_order_id:
+                                response.razorpay_order_id,
+
+                            razorpay_signature:
+                                response.razorpay_signature,
+
+                            local_order_id:
+                                localOrderId
+                        }
+                    );
+
+                    const verifyResponse = await fetch(
+                        "{% url 'verify_razorpay_payment' %}",
+                        {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": csrfToken
+                            },
+                            body: verifyData
+                        }
+                    );
+
+                    const verifyResult =
+                        await verifyResponse.json();
+
+                    console.log(
+                        "Verification Response:",
+                        verifyResult
+                    );
+
+                    // ==========================================
+                    // PAYMENT + ENROLLMENT SUCCESS
+                    // ==========================================
+
+                    if (
+                        verifyResponse.ok &&
+                        verifyResult.success
+                    ) {
+
+                        alert(
+                            verifyResult.message ||
+                            "Payment successful. You are enrolled."
+                        );
+
+                        window.location.href =
+                            "{% url 'my_learning' %}";
+
+                        return;
+                    }
+
+                    // ==========================================
+                    // VERIFICATION FAILED
+                    // ==========================================
+
+                    alert(
+                        verifyResult.message ||
+                        "Payment verification failed."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Payment verification error:",
+                        error
+                    );
+
+                    alert(
+                        "Payment was completed, but verification failed. " +
+                        error.message
+                    );
+
+                } finally {
+
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = "Enroll Now";
+                    }
+                }
+            },
+
+            // ==================================================
+            // PAYMENT FAILED
+            // ==================================================
+
+            modal: {
+                ondismiss: function () {
+
+                    console.log(
+                        "Razorpay checkout closed."
+                    );
+
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = "Enroll Now";
+                    }
+                }
+            }
+        };
+
+        // ====================================================
+        // STEP 4: OPEN RAZORPAY
+        // ====================================================
+
+        const razorpay =
+            new Razorpay(options);
+
+        razorpay.on(
+            "payment.failed",
+            function (response) {
+
+                console.error(
+                    "Razorpay Payment Failed:",
+                    response.error
+                );
+
+                alert(
+                    response.error.description ||
+                    "Payment failed."
+                );
+
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = "Enroll Now";
+                }
+            }
+        );
+
+        razorpay.open();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Payment initialization error:",
+            error
+        );
 
         alert(
-            "Unable to start payment. Please try again."
+            error.message ||
+            "Unable to start payment."
         );
+
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = "Enroll Now";
+        }
     }
 }
+/* =========================================================
+   OPEN RAZORPAY CHECKOUT
+========================================================= */
 
-
-function openRazorpayCheckout(orderData) {
+function openRazorpayCheckout(
+    orderData,
+    button = null
+) {
 
     const options = {
 
-        key: orderData.key_id,
+        key:
+            orderData.key_id,
 
-        amount: orderData.amount,
+        amount:
+            orderData.amount,
 
-        currency: orderData.currency,
+        currency:
+            orderData.currency,
 
-        name: "TRun Learning Platform",
+        name:
+            "TRun Learning Platform",
 
-        description: orderData.course_title,
+        description:
+            orderData.course_title,
 
-        order_id: orderData.razorpay_order_id,
+        order_id:
+            orderData.razorpay_order_id,
+
 
         prefill: {
 
-            name: orderData.student_name,
+            name:
+                orderData.student_name || "",
 
-            email: orderData.student_email,
+            email:
+                orderData.student_email || "",
 
-            contact: orderData.student_phone
+            contact:
+                orderData.student_phone || ""
+
         },
+
 
         theme: {
 
-            color: "#5624d0"
+            color:
+                "#5624d0"
+
         },
 
-        handler: async function(response) {
 
-            await verifyPayment(
-                response,
-                orderData.order_id
-            );
-        },
+        handler:
+            async function(response) {
+
+                await verifyPayment(
+                    response,
+                    orderData.order_id,
+                    button
+                );
+
+            },
+
 
         modal: {
 
-            ondismiss: function() {
+            ondismiss:
+                function() {
 
-                console.log(
-                    "Razorpay checkout closed."
-                );
-            }
+                    if (button) {
+
+                        button.disabled =
+                            false;
+
+                        button.innerText =
+                            "Enroll Now";
+
+                    }
+
+
+                    console.log(
+                        "Razorpay checkout closed."
+                    );
+
+                }
+
         }
+
     };
 
 
-    const razorpay = new Razorpay(
-        options
-    );
+    const razorpay =
+        new Razorpay(options);
 
 
     razorpay.on(
@@ -1407,40 +2029,65 @@ function openRazorpayCheckout(orderData) {
                 response.error
             );
 
+
             alert(
                 "Payment failed. Please try again."
             );
+
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.innerText =
+                    "Enroll Now";
+
+            }
+
         }
     );
 
 
     razorpay.open();
+
 }
 
 
+
+/* =========================================================
+   VERIFY RAZORPAY PAYMENT
+========================================================= */
+
 async function verifyPayment(
     razorpayResponse,
-    localOrderId
+    localOrderId,
+    button = null
 ) {
 
     try {
 
-        const formData = new URLSearchParams();
+        const formData =
+            new URLSearchParams();
+
 
         formData.append(
             "razorpay_payment_id",
             razorpayResponse.razorpay_payment_id
         );
 
+
         formData.append(
             "razorpay_order_id",
             razorpayResponse.razorpay_order_id
         );
 
+
         formData.append(
             "razorpay_signature",
             razorpayResponse.razorpay_signature
         );
+
 
         formData.append(
             "local_order_id",
@@ -1449,7 +2096,7 @@ async function verifyPayment(
 
 
         const response = await fetch(
-            "/payments/verify-payment/",
+            "{% url 'verify_razorpay_payment' %}",
             {
                 method: "POST",
 
@@ -1460,6 +2107,7 @@ async function verifyPayment(
 
                     "Content-Type":
                         "application/x-www-form-urlencoded"
+
                 },
 
                 body: formData,
@@ -1469,23 +2117,20 @@ async function verifyPayment(
         );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         if (data.success) {
 
             alert(
-                data.message
+                data.message ||
+                "Payment successful. You are now enrolled."
             );
 
-            /*
-             * For now we reload the current course page.
-             *
-             * Later you can redirect this to
-             * your My Learning page.
-             */
 
             window.location.reload();
+
 
         } else {
 
@@ -1493,19 +2138,48 @@ async function verifyPayment(
                 data.message ||
                 "Payment verification failed."
             );
+
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.innerText =
+                    "Enroll Now";
+
+            }
+
         }
+
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Payment verification error:",
+            error
+        );
+
 
         alert(
-            "Unable to verify payment."
+            "Unable to verify payment. Please try again."
         );
+
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.innerText =
+                "Enroll Now";
+
+        }
+
     }
+
 }
 
 </script>
-
 
 {% endblock %}

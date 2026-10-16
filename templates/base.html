@@ -143,14 +143,14 @@
 
 
             <!-- CART -->
-            <a href="#cart"
+            <a href="{% url 'cart_page' %}"
                class="header-icon cart-icon"
                title="Cart">
 
                 <i class="fa-solid fa-cart-shopping"></i>
 
                 <span class="cart-count">
-                    0
+                    {{cart_count}}
                 </span>
 
             </a>
@@ -240,7 +240,7 @@
                     </a>
 
 
-                    <a href="#">
+                    <a href="{% url 'cart_page' %}">
 
                         <i class="fa-solid fa-cart-shopping"></i>
 

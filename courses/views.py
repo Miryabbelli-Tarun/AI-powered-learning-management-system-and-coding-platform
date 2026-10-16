@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from courses.models import Category, Course, CourseRating, Wishlist
 from payments.models import Enrollment
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def all_courses(request):
@@ -70,9 +71,12 @@ def all_courses(request):
 
 def course_details(request,slug):
     course=Course.objects.get(slug=slug)
-    # print(course)
+    enroll=False
+    if request.user.is_authenticated:
+        enroll=Enrollment.objects.filter(student=request.user,course=course,status__in=['ACTIVE','COMPLETED']).exists()
     context={
-        'course':course
+        'course':course,
+        'enroll':enroll
     }
     return render(request,'courses/course_details.html',context)
 
@@ -94,7 +98,7 @@ def comment_view(request,slug):
         return redirect('course_details',slug=slug)
     return redirect('course_details', slug=slug)
 
-
+@login_required(login_url='login')
 def wishlist_view(request):
     wishlist_courses=Wishlist.objects.filter(user_id=request.user.user_id)
     selected_filter=request.GET.get('filter_wishlist')

@@ -369,9 +369,9 @@
 
                 <!-- COURSE 1 -->
                 {% for course in courses %}
-                <a href="{% url 'course_details' course.slug %}">
+                
                 <article class="course-card">
-                    
+                    <a href="{% url 'course_details' course.slug %}">
                     <div class="course-image">
                         {% if not course.thumbnail %}
                         <img
@@ -399,6 +399,7 @@
                             </button>
                         </a>
                     </div>
+                </a>
                     
 
                     <div class="course-body">
@@ -439,18 +440,25 @@
                                 {{course.price}}
                             </del>
 
-                            <button class="cart-btn">
+                            <form method="POST" action="{% url 'add_to_cart' course.course_id %}">
+                                    {% csrf_token %}
 
-                                Add to cart
+                                <button
+                                    type="submit"
+                                    class="cart-btn"
+                                >
+                                    <i class="fa-solid fa-cart-shopping"></i>
 
-                            </button>
+                                    Add to Cart
+                                </button>
+
+                            </form>
 
                         </div>
 
                     </div>
 
                 </article>
-                </a>
                 {% endfor %}
 
                 <!-- COURSE 2 -->

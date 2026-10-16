@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from decimal import Decimal
 
 import razorpay
@@ -13,367 +10,493 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from courses.models import Course
+from courses.models import Course, Cart
 
-from .models import Orders, Payments, Enrollment
+from .models import (
+    Orders,
+    OrderItem,
+    Payments,
+    Enrollment,
+)
 
+
+# ============================================================
+# RAZORPAY CLIENT
+# ============================================================
 
 razorpay_client = razorpay.Client(
     auth=(
         settings.RAZORPAY_KEY_ID,
-        settings.RAZORPAY_KEY_SECRET
+        settings.RAZORPAY_KEY_SECRET,
     )
 )
 
 
+# ============================================================
+# GET COURSE PRICE
+# ============================================================
+
 def get_course_price(course):
-    """
-    Get the actual price from the database.
 
-    For a paid course:
-    discounted_price is used when it is greater than zero.
-    Otherwise the normal price is used.
-    """
+    if (
+        course.discounted_price
+        and course.discounted_price > 0
+    ):
+        return course.discounted_price
 
-    if course.discounted_price and course.discounted_price > 0:
-        return Decimal(course.discounted_price)
-
-    return Decimal(course.price)
+    return course.price
 
 
-@login_required(login_url="/accounts/login/")
+# ============================================================
+# FREE COURSE DIRECT ENROLLMENT
+# ============================================================
+
+@login_required
 @require_POST
 def enroll_free_course(request, course_id):
 
     course = get_object_or_404(
         Course,
         course_id=course_id,
-        status="PUBLISHED"
+        status="PUBLISHED",
+        course_type="FREE",
     )
 
-    # Make sure this endpoint cannot be used
-    # for paid courses.
-    if course.course_type != "FREE":
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "This is a paid course."
-            },
-            status=400
-        )
-
-    # Check whether the student is already enrolled.
     existing_enrollment = Enrollment.objects.filter(
         student=request.user,
-        course=course
+        course=course,
     ).first()
 
     if existing_enrollment:
 
-        return JsonResponse(
-            {
-                "success": True,
-                "already_enrolled": True,
-                "message": "You are already enrolled in this course."
-            }
-        )
+        if existing_enrollment.status in [
+            "ACTIVE",
+            "COMPLETED",
+        ]:
 
-    enrollment = Enrollment.objects.create(
+            return JsonResponse({
+                "success": False,
+                "message": "You are already enrolled in this course.",
+            })
+
+    Enrollment.objects.create(
         student=request.user,
         course=course,
         order=None,
         enrollment_type="FREE",
         status="ACTIVE",
-        completion_percentage=Decimal("0.00")
+        completion_percentage=Decimal("0.00"),
     )
 
-    return JsonResponse(
-        {
-            "success": True,
-            "already_enrolled": False,
-            "message": "Successfully enrolled in the course.",
-            "enrollment_id": enrollment.enrollment_id
-        }
-    )
+    # Remove from cart if present
+    Cart.objects.filter(
+        user=request.user,
+        course=course,
+    ).delete()
+
+    return JsonResponse({
+        "success": True,
+        "message": "You have been enrolled successfully.",
+        "course_id": course.course_id,
+    })
 
 
-@login_required(login_url="/accounts/login/")
+# ============================================================
+# CREATE RAZORPAY ORDER
+#
+# Supports BOTH:
+#
+# 1. Single course
+#    POST course_id=10
+#
+# 2. Entire cart
+#    POST without course_id
+#
+# ============================================================
+
+@login_required
 @require_POST
-def create_razorpay_order(request, course_id):
+def create_razorpay_order(request):
 
-    course = get_object_or_404(
-        Course,
-        course_id=course_id,
-        status="PUBLISHED"
-    )
+    course_id = request.POST.get("course_id")
 
-    # This endpoint is only for paid courses.
-    if course.course_type != "PAID":
+    # ========================================================
+    # SINGLE COURSE CHECKOUT
+    # ========================================================
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "This course is free. No payment is required."
-            },
-            status=400
+    if course_id:
+
+        course = get_object_or_404(
+            Course,
+            course_id=course_id,
+            status="PUBLISHED",
+            course_type="PAID",
         )
 
-    # Check whether already enrolled.
-    existing_enrollment = Enrollment.objects.filter(
-        student=request.user,
-        course=course,
-        status__in=["ACTIVE", "COMPLETED"]
-    ).first()
+        # Check existing enrollment
+        already_enrolled = Enrollment.objects.filter(
+            student=request.user,
+            course=course,
+            status__in=[
+                "ACTIVE",
+                "COMPLETED",
+            ],
+        ).exists()
 
-    if existing_enrollment:
+        if already_enrolled:
 
-        return JsonResponse(
-            {
+            return JsonResponse({
                 "success": False,
-                "already_enrolled": True,
-                "message": "You are already enrolled in this course."
-            },
-            status=400
-        )
+                "message": "You are already enrolled in this course.",
+            }, status=400)
 
-    amount = get_course_price(course)
+        price = get_course_price(course)
 
-    if amount <= 0:
+        if not price or price <= 0:
 
-        return JsonResponse(
-            {
+            return JsonResponse({
                 "success": False,
-                "message": "Invalid course price."
-            },
-            status=400
-        )
+                "message": "Invalid course price.",
+            }, status=400)
 
-    # Razorpay expects amount in the smallest currency unit.
-    # Example:
-    #
-    # ₹799 = 79900 paise
-    #
-    amount_in_paise = int(amount * 100)
-
-    receipt = (
-        f"course_{course.course_id}_"
-        f"user_{request.user.user_id}_"
-        f"{int(timezone.now().timestamp())}"
-    )
-
-    try:
-
-        razorpay_order = razorpay_client.order.create(
+        valid_courses = [
             {
-                "amount": amount_in_paise,
-                "currency": "INR",
-                "receipt": receipt,
-                "payment_capture": 1
+                "course": course,
+                "price": price,
             }
+        ]
+
+        total_amount = price
+
+    # ========================================================
+    # CART CHECKOUT
+    # ========================================================
+
+    else:
+
+        cart_items = list(
+            Cart.objects.filter(
+                user=request.user
+            ).select_related(
+                "course"
+            )
         )
 
-    except Exception as e:
+        if not cart_items:
 
-        return JsonResponse(
-            {
+            return JsonResponse({
                 "success": False,
-                "message": "Unable to create Razorpay order.",
-                "error": str(e)
-            },
-            status=500
+                "message": "Your cart is empty.",
+            }, status=400)
+
+        valid_courses = []
+
+        total_amount = Decimal("0.00")
+
+        for cart_item in cart_items:
+
+            course = cart_item.course
+
+            # Course must be published
+            if course.status != "PUBLISHED":
+                continue
+
+            # Free courses don't need Razorpay
+            if course.course_type != "PAID":
+                continue
+
+            # Already enrolled courses shouldn't be charged
+            already_enrolled = Enrollment.objects.filter(
+                student=request.user,
+                course=course,
+                status__in=[
+                    "ACTIVE",
+                    "COMPLETED",
+                ],
+            ).exists()
+
+            if already_enrolled:
+                continue
+
+            price = get_course_price(course)
+
+            if not price or price <= 0:
+                continue
+
+            valid_courses.append({
+                "course": course,
+                "price": price,
+            })
+
+            total_amount += price
+
+        if not valid_courses:
+
+            return JsonResponse({
+                "success": False,
+                "message": "There are no paid courses available for checkout.",
+            }, status=400)
+
+    # ========================================================
+    # RAZORPAY AMOUNT
+    # ========================================================
+
+    razorpay_amount = int(
+        total_amount * Decimal("100")
+    )
+
+    # ========================================================
+    # CREATE RAZORPAY ORDER
+    # ========================================================
+
+    razorpay_order = razorpay_client.order.create({
+        "amount": razorpay_amount,
+        "currency": "INR",
+        "payment_capture": 1,
+    })
+
+    # ========================================================
+    # CREATE LOCAL ORDER
+    # ========================================================
+
+    # For single course we can keep course populated.
+    #
+    # For cart checkout we keep course NULL because
+    # OrderItem contains all purchased courses.
+
+    single_course = None
+
+    if len(valid_courses) == 1:
+        single_course = valid_courses[0]["course"]
+
+    order = Orders.objects.create(
+        student=request.user,
+        course=single_course,
+        amount=total_amount,
+        currency="INR",
+        order_status="PENDING",
+        gateway_order_id=razorpay_order["id"],
+    )
+
+    # ========================================================
+    # CREATE ORDER ITEMS
+    # ========================================================
+
+    for item in valid_courses:
+
+        OrderItem.objects.create(
+            order=order,
+            course=item["course"],
+            price=item["price"],
         )
 
-    local_order = Orders.objects.create(
+    # ========================================================
+    # CREATE PAYMENT RECORD
+    # ========================================================
 
+    Payments.objects.create(
+        order=order,
         student=request.user,
-
-        course=course,
-
-        amount=amount,
-
-        currency="INR",
-
-        order_status="PENDING",
-
-        gateway_order_id=razorpay_order["id"]
+        amount=total_amount,
+        payment_status="CREATED",
+        UTR="",
     )
 
-    return JsonResponse(
-        {
-            "success": True,
+    # ========================================================
+    # RESPONSE
+    # ========================================================
 
-            "order_id": local_order.order_id,
+    return JsonResponse({
 
-            "razorpay_order_id": razorpay_order["id"],
+        "success": True,
 
-            "amount": amount_in_paise,
+        "key_id": settings.RAZORPAY_KEY_ID,
 
-            "currency": "INR",
+        "amount": razorpay_amount,
 
-            "key_id": settings.RAZORPAY_KEY_ID,
+        "currency": "INR",
 
-            "course_title": course.title,
+        "razorpay_order_id": razorpay_order["id"],
 
-            "student_name": (
-                f"{request.user.first_name} "
-                f"{request.user.last_name or ''}"
-            ).strip(),
+        "local_order_id": order.order_id,
 
-            "student_email": request.user.email,
+        "student_name": (
+            f"{request.user.first_name} "
+            f"{request.user.last_name}"
+        ).strip(),
 
-            "student_phone": request.user.phone or "",
-        }
-    )
+        "student_email": request.user.email,
 
+        "student_phone": request.user.phone or "",
 
-@login_required(login_url="/accounts/login/")
+        "course_count": len(valid_courses),
+
+        "total_amount": str(total_amount),
+
+    })
+
+# ============================================================
+# VERIFY RAZORPAY PAYMENT
+# ============================================================
+
+@login_required
 @require_POST
 def verify_razorpay_payment(request):
 
-    razorpay_payment_id = request.POST.get(
-        "razorpay_payment_id"
-    )
+    razorpay_payment_id = request.POST.get("razorpay_payment_id")
+    razorpay_order_id = request.POST.get("razorpay_order_id")
+    razorpay_signature = request.POST.get("razorpay_signature")
+    local_order_id = request.POST.get("local_order_id")
 
-    razorpay_order_id = request.POST.get(
-        "razorpay_order_id"
-    )
+    # ========================================================
+    # DEBUG INFORMATION
+    # ========================================================
 
-    razorpay_signature = request.POST.get(
-        "razorpay_signature"
-    )
+    print("\n")
+    print("=" * 70)
+    print("RAZORPAY PAYMENT VERIFICATION STARTED")
+    print("=" * 70)
 
-    local_order_id = request.POST.get(
-        "local_order_id"
-    )
+    print("Razorpay Payment ID :", razorpay_payment_id)
+    print("Razorpay Order ID   :", razorpay_order_id)
+    print("Razorpay Signature  :", razorpay_signature)
+    print("Local Order ID      :", local_order_id)
+    print("User                :", request.user.email)
 
-    if not all(
-        [
-            razorpay_payment_id,
-            razorpay_order_id,
-            razorpay_signature,
-            local_order_id,
-        ]
-    ):
+    # ========================================================
+    # VALIDATE INPUT
+    # ========================================================
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Incomplete payment information."
-            },
-            status=400
-        )
+    if not all([
+        razorpay_payment_id,
+        razorpay_order_id,
+        razorpay_signature,
+        local_order_id,
+    ]):
+
+        print("ERROR: Missing payment information")
+
+        return JsonResponse({
+            "success": False,
+            "message": "Missing payment information.",
+        }, status=400)
+
+    # ========================================================
+    # GET LOCAL ORDER
+    # ========================================================
 
     try:
 
-        local_order = Orders.objects.get(
+        order = Orders.objects.get(
             order_id=local_order_id,
-            student=request.user
+            student=request.user,
         )
 
     except Orders.DoesNotExist:
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Order not found."
-            },
-            status=404
-        )
+        print("ERROR: Local order not found")
 
-    # ------------------------------------------------
-    # IMPORTANT SECURITY CHECK
-    # ------------------------------------------------
+        return JsonResponse({
+            "success": False,
+            "message": "Local order was not found.",
+        }, status=400)
 
-    # The Razorpay order received from frontend
-    # must match the Razorpay order stored in our DB.
+    print("Local Order Found    :", order.order_id)
+    print("Local Order Status   :", order.order_status)
+    print("Local Order Amount   :", order.amount)
+    print("Gateway Order ID     :", order.gateway_order_id)
 
-    if local_order.gateway_order_id != razorpay_order_id:
+    # ========================================================
+    # CHECK ORDER ID
+    # ========================================================
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Invalid Razorpay order."
-            },
-            status=400
-        )
+    if order.gateway_order_id != razorpay_order_id:
 
-    # Do not allow a previously processed order
-    # to be processed again.
+        print("ERROR: Razorpay order ID mismatch")
+        print("Expected:", order.gateway_order_id)
+        print("Received:", razorpay_order_id)
 
-    if local_order.order_status == "PAID":
+        return JsonResponse({
+            "success": False,
+            "message": "Razorpay order ID mismatch.",
+        }, status=400)
 
-        return JsonResponse(
-            {
-                "success": True,
-                "message": "Payment was already processed."
-            }
-        )
+    # ========================================================
+    # IF ALREADY PAID
+    # ========================================================
 
-    # ------------------------------------------------
-    # VERIFY RAZORPAY SIGNATURE
-    # ------------------------------------------------
+    if order.order_status == "PAID":
+
+        existing_enrollments = Enrollment.objects.filter(
+            student=request.user,
+            order=order,
+        ).select_related("course")
+
+        print("Order already marked as PAID")
+
+        return JsonResponse({
+            "success": True,
+            "message": "Payment was already completed.",
+            "order_id": order.order_id,
+            "payment_id": razorpay_payment_id,
+            "course_count": existing_enrollments.count(),
+            "courses": [
+                enrollment.course.title
+                for enrollment in existing_enrollments
+            ],
+        })
+
+    # ========================================================
+    # VERIFY SIGNATURE
+    # ========================================================
+
+    print("-" * 70)
+    print("STEP 1: VERIFYING PAYMENT SIGNATURE")
+    print("-" * 70)
 
     try:
 
-        razorpay_client.utility.verify_payment_signature(
-            {
-                "razorpay_order_id": razorpay_order_id,
-                "razorpay_payment_id": razorpay_payment_id,
-                "razorpay_signature": razorpay_signature,
-            }
-        )
+        razorpay_client.utility.verify_payment_signature({
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature,
+        })
 
-    except razorpay.errors.SignatureVerificationError:
+        print("SIGNATURE VERIFICATION SUCCESS")
 
-        local_order.order_status = "FAILED"
-        local_order.save(
-            update_fields=[
-                "order_status",
-                "updated_at"
-            ]
-        )
+    except razorpay.errors.SignatureVerificationError as error:
 
-        Payments.objects.create(
+        print("SIGNATURE VERIFICATION FAILED")
+        print("Error:", str(error))
 
-            order=local_order,
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "Payment signature verification failed. "
+                "Please check your Razorpay Key ID and Key Secret."
+            ),
+        }, status=400)
 
-            student=request.user,
+    except Exception as error:
 
-            amount=local_order.amount,
+        print("SIGNATURE VERIFICATION ERROR")
+        print("Error type:", type(error).__name__)
+        print("Error:", str(error))
 
-            payment_method=None,
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"Signature verification error: {str(error)}"
+            ),
+        }, status=400)
 
-            gateway_payment_id=razorpay_payment_id,
-
-            gateway_signature=razorpay_signature,
-
-            payment_status="FAILED",
-
-            UTR=""
-        )
-
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Payment signature verification failed."
-            },
-            status=400
-        )
-
-    except Exception as e:
-
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Payment verification failed.",
-                "error": str(e)
-            },
-            status=500
-        )
-
-    # ------------------------------------------------
+    # ========================================================
     # FETCH PAYMENT FROM RAZORPAY
-    # ------------------------------------------------
+    # ========================================================
+
+    print("-" * 70)
+    print("STEP 2: FETCHING PAYMENT FROM RAZORPAY")
+    print("-" * 70)
 
     try:
 
@@ -381,238 +504,292 @@ def verify_razorpay_payment(request):
             razorpay_payment_id
         )
 
-    except Exception as e:
+        print("RAZORPAY PAYMENT FETCH SUCCESS")
+        print("Payment ID :", razorpay_payment.get("id"))
+        print("Order ID   :", razorpay_payment.get("order_id"))
+        print("Amount     :", razorpay_payment.get("amount"))
+        print("Status     :", razorpay_payment.get("status"))
+        print("Method     :", razorpay_payment.get("method"))
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Unable to verify payment status.",
-                "error": str(e)
-            },
-            status=500
-        )
+    except Exception as error:
 
-    # Verify that the payment belongs to the same
-    # Razorpay order.
+        print("RAZORPAY PAYMENT FETCH FAILED")
+        print("Error type:", type(error).__name__)
+        print("Error:", str(error))
 
-    if razorpay_payment.get("order_id") != razorpay_order_id:
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"Unable to fetch payment from Razorpay: {str(error)}"
+            ),
+        }, status=400)
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Payment does not belong to this order."
-            },
-            status=400
-        )
+    # ========================================================
+    # VERIFY RAZORPAY ORDER ID
+    # ========================================================
 
-    # ------------------------------------------------
-    # VERIFY PAYMENT AMOUNT
-    # ------------------------------------------------
+    print("-" * 70)
+    print("STEP 3: VERIFYING ORDER ID")
+    print("-" * 70)
+
+    razorpay_payment_order_id = razorpay_payment.get("order_id")
+
+    print("Expected Order ID :", razorpay_order_id)
+    print("Received Order ID :", razorpay_payment_order_id)
+
+    if razorpay_payment_order_id != razorpay_order_id:
+
+        print("ORDER ID MISMATCH")
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "Payment order mismatch. "
+                "The payment does not belong to this order."
+            ),
+        }, status=400)
+
+    print("ORDER ID VERIFICATION SUCCESS")
+
+    # ========================================================
+    # VERIFY AMOUNT
+    # ========================================================
+
+    print("-" * 70)
+    print("STEP 4: VERIFYING PAYMENT AMOUNT")
+    print("-" * 70)
 
     expected_amount = int(
-        local_order.amount * Decimal("100")
+        order.amount * Decimal("100")
     )
 
     received_amount = int(
         razorpay_payment.get("amount", 0)
     )
 
+    print("Expected Amount :", expected_amount)
+    print("Received Amount :", received_amount)
+
     if received_amount != expected_amount:
 
-        local_order.order_status = "FAILED"
+        print("AMOUNT MISMATCH")
 
-        local_order.save(
-            update_fields=[
-                "order_status",
-                "updated_at"
-            ]
-        )
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"Payment amount mismatch. "
+                f"Expected ₹{order.amount}, "
+                f"received ₹{Decimal(received_amount) / Decimal('100')}."
+            ),
+        }, status=400)
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Payment amount mismatch."
-            },
-            status=400
-        )
+    print("AMOUNT VERIFICATION SUCCESS")
 
-    # ------------------------------------------------
-    # CHECK PAYMENT STATUS
-    # ------------------------------------------------
+    # ========================================================
+    # VERIFY PAYMENT STATUS
+    # ========================================================
 
-    payment_status = razorpay_payment.get(
-        "status"
-    )
+    print("-" * 70)
+    print("STEP 5: VERIFYING PAYMENT STATUS")
+    print("-" * 70)
 
-    # The course should only be granted after
-    # a successful/captured payment.
+    payment_status = razorpay_payment.get("status")
+
+    print("Razorpay Payment Status:", payment_status)
 
     if payment_status != "captured":
 
-        local_order.order_status = "FAILED"
+        print("PAYMENT NOT CAPTURED")
 
-        local_order.save(
-            update_fields=[
-                "order_status",
-                "updated_at"
-            ]
-        )
-
-        Payments.objects.create(
-
-            order=local_order,
-
-            student=request.user,
-
-            amount=local_order.amount,
-
-            payment_method=razorpay_payment.get(
-                "method"
+        return JsonResponse({
+            "success": False,
+            "message": (
+                f"Payment is not captured. "
+                f"Razorpay status: {payment_status}"
             ),
+        }, status=400)
 
-            gateway_payment_id=razorpay_payment_id,
+    print("PAYMENT STATUS VERIFICATION SUCCESS")
 
-            gateway_signature=razorpay_signature,
+    # ========================================================
+    # EVERYTHING VERIFIED
+    # NOW CREATE ENROLLMENT
+    # ========================================================
 
-            payment_status="FAILED",
-
-            UTR=razorpay_payment.get(
-                "vpa",
-                ""
-            ) or ""
-        )
-
-        return JsonResponse(
-            {
-                "success": False,
-                "message": (
-                    "Payment is not captured yet. "
-                    "Enrollment was not created."
-                )
-            },
-            status=400
-        )
-
-    # ------------------------------------------------
-    # SAVE SUCCESSFUL PAYMENT
-    # AND CREATE ENROLLMENT
-    # ------------------------------------------------
+    print("-" * 70)
+    print("ALL RAZORPAY VERIFICATIONS SUCCESSFUL")
+    print("CREATING ENROLLMENT")
+    print("-" * 70)
 
     try:
 
         with transaction.atomic():
 
-            # Create successful payment record.
+            # ------------------------------------------------
+            # PAYMENT
+            # ------------------------------------------------
 
-            payment = Payments.objects.create(
-
-                order=local_order,
-
-                student=request.user,
-
-                amount=local_order.amount,
-
-                payment_method=razorpay_payment.get(
-                    "method"
-                ),
-
-                gateway_payment_id=razorpay_payment_id,
-
-                gateway_signature=razorpay_signature,
-
-                payment_status="SUCCESS",
-
-                UTR=razorpay_payment.get(
-                    "vpa",
-                    ""
-                ) or "",
-
-                paid_at=timezone.now()
-            )
-
-            # Update order.
-
-            local_order.order_status = "PAID"
-
-            local_order.save(
-                update_fields=[
-                    "order_status",
-                    "updated_at"
-                ]
-            )
-
-            # Check again for an existing enrollment.
-
-            enrollment = Enrollment.objects.filter(
-                student=request.user,
-                course=local_order.course
+            payment = Payments.objects.filter(
+                order=order
             ).first()
 
-            if enrollment is None:
+            if payment is None:
 
-                enrollment = Enrollment.objects.create(
-
+                payment = Payments.objects.create(
+                    order=order,
                     student=request.user,
-
-                    course=local_order.course,
-
-                    order=local_order,
-
-                    enrollment_type="PAID",
-
-                    status="ACTIVE",
-
-                    completion_percentage=Decimal(
-                        "0.00"
-                    )
+                    amount=order.amount,
+                    payment_method=razorpay_payment.get(
+                        "method"
+                    ),
+                    gateway_payment_id=razorpay_payment_id,
+                    gateway_signature=razorpay_signature,
+                    payment_status="SUCCESS",
+                    UTR="",
+                    paid_at=timezone.now(),
                 )
 
             else:
 
-                # If enrollment already exists,
-                # connect it to this successful order.
+                payment.student = request.user
+                payment.amount = order.amount
 
-                enrollment.order = local_order
-
-                enrollment.enrollment_type = "PAID"
-
-                enrollment.status = "ACTIVE"
-
-                enrollment.save(
-                    update_fields=[
-                        "order",
-                        "enrollment_type",
-                        "status"
-                    ]
+                payment.payment_method = (
+                    razorpay_payment.get("method")
                 )
 
-    except Exception as e:
+                payment.gateway_payment_id = (
+                    razorpay_payment_id
+                )
 
-        return JsonResponse(
-            {
-                "success": False,
-                "message": (
-                    "Payment was verified, "
-                    "but enrollment could not be created."
-                ),
-                "error": str(e)
-            },
-            status=500
-        )
+                payment.gateway_signature = (
+                    razorpay_signature
+                )
 
-    return JsonResponse(
-        {
-            "success": True,
+                payment.payment_status = "SUCCESS"
 
+                payment.paid_at = timezone.now()
+
+                payment.save()
+
+            # ------------------------------------------------
+            # UPDATE ORDER
+            # ------------------------------------------------
+
+            order.order_status = "PAID"
+
+            order.save(
+                update_fields=[
+                    "order_status",
+                    "updated_at",
+                ]
+            )
+
+            # ------------------------------------------------
+            # GET ORDER ITEMS
+            # ------------------------------------------------
+
+            order_items = OrderItem.objects.filter(
+                order=order
+            ).select_related("course")
+
+            if not order_items.exists():
+
+                raise Exception(
+                    "No OrderItem found for this payment."
+                )
+
+            enrolled_courses = []
+
+            # ------------------------------------------------
+            # CREATE ENROLLMENT
+            # ------------------------------------------------
+
+            for item in order_items:
+
+                print(
+                    "Creating enrollment for:",
+                    item.course.title
+                )
+
+                enrollment, created = (
+                    Enrollment.objects.update_or_create(
+                        student=request.user,
+                        course=item.course,
+                        defaults={
+                            "order": order,
+                            "enrollment_type": "PAID",
+                            "status": "ACTIVE",
+                            "completion_percentage": Decimal(
+                                "0.00"
+                            ),
+                        },
+                    )
+                )
+
+                print(
+                    "Enrollment ID:",
+                    enrollment.enrollment_id
+                )
+
+                print(
+                    "Enrollment Created:",
+                    created
+                )
+
+                enrolled_courses.append(
+                    item.course.title
+                )
+
+                # --------------------------------------------
+                # REMOVE FROM CART
+                # --------------------------------------------
+
+                Cart.objects.filter(
+                    user=request.user,
+                    course=item.course,
+                ).delete()
+
+        print("-" * 70)
+        print("PAYMENT + ENROLLMENT TRANSACTION SUCCESS")
+        print("Courses:", enrolled_courses)
+        print("-" * 70)
+
+    except Exception as error:
+
+        print("-" * 70)
+        print("ENROLLMENT TRANSACTION FAILED")
+        print("Error type:", type(error).__name__)
+        print("Error:", str(error))
+        print("-" * 70)
+
+        return JsonResponse({
+            "success": False,
             "message": (
-                "Payment successful. "
-                "You are now enrolled in the course."
+                f"Payment verified, but enrollment failed: "
+                f"{str(error)}"
             ),
+        }, status=500)
 
-            "payment_id": payment.payment_id,
+    # ========================================================
+    # FINAL SUCCESS RESPONSE
+    # ========================================================
 
-            "enrollment_id": enrollment.enrollment_id,
+    return JsonResponse({
 
-            "course_id": local_order.course.course_id
-        }
-    )
+        "success": True,
+
+        "message": (
+            "Payment successful. "
+            "You have been enrolled in all purchased courses."
+        ),
+
+        "order_id": order.order_id,
+
+        "payment_id": razorpay_payment_id,
+
+        "course_count": len(enrolled_courses),
+
+        "courses": enrolled_courses,
+
+    })

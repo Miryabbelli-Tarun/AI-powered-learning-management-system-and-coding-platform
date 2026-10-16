@@ -1,0 +1,942 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+My Cart | TRun Learning Platform
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/cart/cart.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<main class="cart-page">
+
+    <div class="cart-container">
+
+        <!-- ==========================================
+             HEADER
+        =========================================== -->
+
+        <div class="cart-header">
+
+            <div>
+
+                <span class="cart-eyebrow">
+                    YOUR LEARNING CART
+                </span>
+
+                <h1>
+                    My Cart
+                </h1>
+
+                <p>
+                    Review your selected courses
+                    before checkout.
+                </p>
+
+            </div>
+
+            {% if cart_items %}
+
+            <div class="cart-count-box">
+
+                <strong>
+                    {{ cart_count }}
+                </strong>
+
+                <span>
+                    Course{{ cart_count|pluralize }}
+                </span>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if cart_items %}
+
+        <div class="cart-layout">
+
+
+            <!-- ==========================================
+                 CART ITEMS
+            =========================================== -->
+
+            <section class="cart-items-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2>
+                            Courses in your cart
+                        </h2>
+
+                        <p>
+                            {{ cart_count }}
+                            course{{ cart_count|pluralize }}
+                            selected
+                        </p>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{% url 'clear_cart' %}"
+                        onsubmit="return confirm(
+                            'Are you sure you want to clear your cart?'
+                        );"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="clear-cart-button"
+                        >
+                            Clear Cart
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <div class="cart-items">
+
+                    {% for item in cart_items %}
+
+                    <article class="cart-item">
+
+                        <!-- IMAGE -->
+
+                        <div class="cart-item-image">
+
+                            {% if item.course.thumbnail %}
+
+                            <img
+                                src="{{ item.course.thumbnail.url }}"
+                                alt="{{ item.course.title }}"
+                            >
+
+                            {% else %}
+
+                            <img
+                                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80"
+                                alt="{{ item.course.title }}"
+                            >
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- CONTENT -->
+
+                        <div class="cart-item-content">
+
+                            <span class="cart-category">
+
+                                {{ item.course.category.name }}
+
+                            </span>
+
+
+                            <h3>
+
+                                {{ item.course.title }}
+
+                            </h3>
+
+
+                            {% if item.course.description %}
+
+                            <p>
+
+                                {{ item.course.description|truncatechars:150 }}
+
+                            </p>
+
+                            {% endif %}
+
+
+                            <div class="cart-meta">
+
+                                {% if item.course.instructor %}
+
+                                <span>
+
+                                    <i class="fa-solid fa-user"></i>
+
+                                    {{ item.course.instructor.first_name }}
+
+                                </span>
+
+                                {% endif %}
+
+
+                                <span>
+
+                                    <i class="fa-regular fa-clock"></i>
+
+                                    {{ item.course.duration_minutes }}
+                                    min
+
+                                </span>
+
+
+                                <span>
+
+                                    <i class="fa-solid fa-layer-group"></i>
+
+                                    {{ item.course.level }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PRICE + ACTION -->
+
+                        <div class="cart-item-right">
+
+                            <div class="cart-price">
+
+                                {% if item.course.course_type == "FREE" %}
+
+                                    <span class="free-price">
+                                        FREE
+                                    </span>
+
+                                {% else %}
+
+                                    {% if item.course.discounted_price > 0 %}
+
+                                    <strong>
+                                        ₹{{ item.course.discounted_price }}
+                                    </strong>
+
+                                    {% if item.course.price > item.course.discounted_price %}
+
+                                    <del>
+                                        ₹{{ item.course.price }}
+                                    </del>
+
+                                    {% endif %}
+
+                                    {% else %}
+
+                                    <strong>
+                                        ₹{{ item.course.price }}
+                                    </strong>
+
+                                    {% endif %}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <form
+                                method="POST"
+                                action="{% url 'remove_from_cart' item.course.course_id %}"
+                            >
+
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="remove-cart-button"
+                                >
+
+                                    <i class="fa-regular fa-trash-can"></i>
+
+                                    Remove
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </article>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 ORDER SUMMARY
+            =========================================== -->
+
+            <aside class="cart-summary">
+
+                <div class="summary-card">
+
+                    <h2>
+                        Order Summary
+                    </h2>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Courses
+                        </span>
+
+                        <strong>
+                            {{ cart_count }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Paid courses
+                        </span>
+
+                        <strong>
+                            {{ paid_count }}
+                        </strong>
+
+                    </div>
+
+
+                    {% if free_count > 0 %}
+
+                    <div class="summary-row">
+
+                        <span>
+                            Free courses
+                        </span>
+
+                        <strong>
+                            {{ free_count }}
+                        </strong>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="summary-divider"></div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            ₹{{ subtotal }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            ₹{{ total }}
+                        </strong>
+
+                    </div>
+
+
+                    {% if paid_count > 0 %}
+
+                    <button
+                        type="button"
+                        class="checkout-button"
+                        onclick="checkoutCart()"
+                    >
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        Pay ₹{{ total }}
+
+                    </button>
+
+                    <p class="checkout-note">
+
+                        One secure payment for all
+                        paid courses.
+
+                    </p>
+
+                    {% endif %}
+
+
+                    {% if free_count > 0 %}
+
+                    <div class="free-course-note">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Free courses can be enrolled
+                        without payment.
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="secure-checkout">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <div>
+
+                            <strong>
+                                Secure Checkout
+                            </strong>
+
+                            <span>
+                                Payments are securely
+                                processed by Razorpay.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+
+        <!-- ==========================================
+             FREE COURSE ENROLLMENT
+        =========================================== -->
+
+        {% if free_count > 0 %}
+
+        <section class="free-courses-section">
+
+            <div class="free-section-heading">
+
+                <div>
+
+                    <span>
+                        NO PAYMENT REQUIRED
+                    </span>
+
+                    <h2>
+                        Free Courses
+                    </h2>
+
+                </div>
+
+                <p>
+                    Enroll instantly in these courses.
+                </p>
+
+            </div>
+
+
+            <div class="free-course-grid">
+
+                {% for item in cart_items %}
+
+                    {% if item.course.course_type == "FREE" %}
+
+                    <div class="free-course-card">
+
+                        <div>
+
+                            <h3>
+                                {{ item.course.title }}
+                            </h3>
+
+                            <p>
+                                {{ item.course.description|truncatechars:100 }}
+                            </p>
+
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{% url 'enroll_free_from_cart' item.course.course_id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="free-enroll-button"
+                            >
+
+                                <i class="fa-solid fa-check"></i>
+
+                                Enroll Free
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+        {% else %}
+
+
+        <!-- ==========================================
+             EMPTY CART
+        =========================================== -->
+
+        <section class="empty-cart">
+
+            <div class="empty-cart-icon">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+            </div>
+
+
+            <h2>
+                Your cart is empty
+            </h2>
+
+
+            <p>
+                Explore our courses and start
+                building your learning journey.
+            </p>
+
+
+            <a
+                href="{% url 'all_courses' %}"
+                class="browse-courses-button"
+            >
+
+                Explore Courses
+
+            </a>
+
+        </section>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+    // =====================================================
+    // CSRF TOKEN
+    // =====================================================
+
+    function getCookie(name) {
+
+        let cookieValue = null;
+
+        if (document.cookie && document.cookie !== "") {
+
+            const cookies = document.cookie.split(";");
+
+            for (let cookie of cookies) {
+
+                cookie = cookie.trim();
+
+                if (
+                    cookie.substring(
+                        0,
+                        name.length + 1
+                    ) === name + "="
+                ) {
+
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                    break;
+                }
+            }
+        }
+
+        return cookieValue;
+    }
+
+
+    const csrftoken = getCookie("csrftoken");
+
+
+    // =====================================================
+    // CART CHECKOUT
+    // =====================================================
+
+    async function checkoutCart() {
+
+        const checkoutButton =
+            document.querySelector(
+                ".checkout-button"
+            );
+
+
+        if (checkoutButton) {
+
+            checkoutButton.disabled = true;
+
+            checkoutButton.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Checkout...';
+
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "{% url 'create_razorpay_order' %}",
+                {
+                    method: "POST",
+
+                    headers: {
+
+                        "X-CSRFToken": csrftoken,
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                alert(
+                    data.message ||
+                    "Unable to create payment order."
+                );
+
+                resetCheckoutButton();
+
+                return;
+            }
+
+
+            openRazorpayCheckout(data);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "CHECKOUT ERROR:",
+                error
+            );
+
+            alert(
+                "Something went wrong while starting checkout."
+            );
+
+            resetCheckoutButton();
+        }
+    }
+
+
+    // =====================================================
+    // OPEN RAZORPAY
+    // =====================================================
+
+    function openRazorpayCheckout(orderData) {
+
+        const options = {
+
+            key: orderData.key_id,
+
+            amount: orderData.amount,
+
+            currency: orderData.currency,
+
+            name: "TRun Learning Platform",
+
+            description:
+                orderData.course_count +
+                " course(s) purchase",
+
+            order_id:
+                orderData.razorpay_order_id,
+
+            prefill: {
+
+                name:
+                    orderData.student_name,
+
+                email:
+                    orderData.student_email,
+
+                contact:
+                    orderData.student_phone
+
+            },
+
+            theme: {
+
+                color: "#5624d0"
+
+            },
+
+            modal: {
+
+                backdropclose: false,
+
+                escape: true,
+
+                handleback: true,
+
+                confirm_close: true,
+
+                ondismiss: function() {
+
+                    resetCheckoutButton();
+
+                }
+
+            },
+
+
+            handler: async function(response) {
+
+                await verifyPayment(
+                    response,
+                    orderData.local_order_id
+                );
+
+            }
+
+        };
+
+
+        const razorpay =
+            new Razorpay(options);
+
+
+        razorpay.on(
+            "payment.failed",
+            function(response) {
+
+                console.error(
+                    "RAZORPAY PAYMENT FAILED:",
+                    response
+                );
+
+                const error =
+                    response.error || {};
+
+
+                alert(
+
+                    "Payment Failed\n\n" +
+
+                    "Code: " +
+                    (error.code || "N/A") +
+
+                    "\n\nDescription: " +
+                    (error.description || "N/A") +
+
+                    "\n\nSource: " +
+                    (error.source || "N/A") +
+
+                    "\n\nStep: " +
+                    (error.step || "N/A") +
+
+                    "\n\nReason: " +
+                    (error.reason || "N/A")
+
+                );
+
+
+                resetCheckoutButton();
+
+            }
+        );
+
+
+        razorpay.open();
+    }
+
+
+    // =====================================================
+    // VERIFY PAYMENT
+    // =====================================================
+
+    async function verifyPayment(
+        razorpayResponse,
+        localOrderId
+    ) {
+
+        try {
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "razorpay_payment_id",
+                razorpayResponse.razorpay_payment_id
+            );
+
+
+            formData.append(
+                "razorpay_order_id",
+                razorpayResponse.razorpay_order_id
+            );
+
+
+            formData.append(
+                "razorpay_signature",
+                razorpayResponse.razorpay_signature
+            );
+
+
+            formData.append(
+                "local_order_id",
+                localOrderId
+            );
+
+
+            const response = await fetch(
+                "{% url 'verify_razorpay_payment' %}",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "X-CSRFToken":
+                            csrftoken
+
+                    },
+
+                    body: formData
+
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                alert(
+                    data.message ||
+                    "Payment verification failed."
+                );
+
+                resetCheckoutButton();
+
+                return;
+            }
+
+
+            alert(
+                "Payment successful!\n\n" +
+                data.course_count +
+                " course(s) enrolled successfully."
+            );
+
+
+            window.location.href =
+                "{% url 'cart_page' %}";
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "VERIFY PAYMENT ERROR:",
+                error
+            );
+
+            alert(
+                "Payment was completed but verification failed. Please contact support."
+            );
+
+            resetCheckoutButton();
+
+        }
+    }
+
+
+    // =====================================================
+    // RESET CHECKOUT BUTTON
+    // =====================================================
+
+    function resetCheckoutButton() {
+
+        const button =
+            document.querySelector(
+                ".checkout-button"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.disabled = false;
+
+
+        button.innerHTML =
+            '<i class="fa-solid fa-lock"></i> Pay ₹{{ total }}';
+
+    }
+
+</script>
+
+{% endblock %}
